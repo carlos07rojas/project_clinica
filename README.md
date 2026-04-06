@@ -1,2 +1,3 @@
 # project_clinica
-An Project about of an hospital
+
+Sistema de gestión de citas médicas — Spring Boot + Angular + SQL Server
