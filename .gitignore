@@ -1,0 +1,21 @@
+# Windows
+Thumbs.db
+desktop.ini
+
+# MacOS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Spring Boot — credenciales nunca al repo
+backend/src/main/resources/application.properties
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+
+# Java compilado
+backend/target/
