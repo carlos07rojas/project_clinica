@@ -28,15 +28,15 @@ public class Paciente {
     @Column(name = "dni", nullable = false, unique = true, length = 8)
     private String dni;
 
-    @Column(name = "fecha_nacimiento", nullabre = false)
+    @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
-    @Column(name = "telefono", lenght = 9)
+    @Column(name = "telefono", length = 9)
     private String telefono;
 
-    @Column(name = "direccion", lenght = 250)
+    @Column(name = "direccion", length = 250)
     private String direccion;
 
-    @Column(name = "sexo", nullable = false, lenght = 1)
+    @Column(name = "sexo", nullable = false, length = 1)
     private String sexo;
 }

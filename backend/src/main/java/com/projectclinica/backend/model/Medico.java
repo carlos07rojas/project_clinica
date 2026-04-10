@@ -25,13 +25,13 @@ public class Medico {
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
 
-    @Column(name = "codigo_colegiatura", nullable = false, unique = true, legth = 10)
-    private String codigoColegiatura
+    @Column(name = "codigo_colegiatura", nullable = false, unique = true, length = 10)
+    private String codigoColegiatura;
 
     @ManyToOne
     @JoinColumn(name = "id_especialidad", nullable = false)
     private Especialidad especialidad;
 
-    @Column(name = "telefono", lenght = 9)
+    @Column(name = "telefono", length = 9)
     private String telefono;
 }
