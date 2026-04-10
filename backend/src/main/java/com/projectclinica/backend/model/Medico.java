@@ -19,7 +19,7 @@ public class Medico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_medico")
-    private Integer medico;
+    private Integer idMedico;
 
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
