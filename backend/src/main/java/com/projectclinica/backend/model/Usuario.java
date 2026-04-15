@@ -32,7 +32,7 @@ public class Usuario {
     private String passwordHash;
 
     @Column(name = "rol", nullable = false, length = 20)
-    private Boolean rol;
+    private String rol;
     
     @Column(name = "activo", nullable = false)
     private Boolean activo = true;
