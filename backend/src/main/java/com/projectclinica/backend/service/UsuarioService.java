@@ -6,8 +6,8 @@ import com.projectclinica.backend.model.Usuario;
 import com.projectclinica.backend.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
+// import java.util.Optional;
+// import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
