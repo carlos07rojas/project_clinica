@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class HorarioCitasSerice {
+public class HorarioCitasService {
     private final HorarioCitasRepository horarioCitasRepository;
     private final MedicoRepository medicoRepository;
 
-    public HorarioCitasSerice(HorarioCitasRepository horarioCitasRepository, 
+    public HorarioCitasService(HorarioCitasRepository horarioCitasRepository, 
             MedicoRepository medicoRepository) {
         this.horarioCitasRepository = horarioCitasRepository;
         this.medicoRepository = medicoRepository;
