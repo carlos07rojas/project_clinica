@@ -2,6 +2,8 @@ package com.projectclinica.backend.repository;
 
 import com.projectclinica.backend.model.Servicio;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -12,5 +14,6 @@ public interface ServicioRepository
     List<Servicio> findByActivoTrue();
 
     // Busca todos los servicios con una especialidad especifica
-    List<Servicio> findByEspecialidadIdEspecialidadAndActivoTrue(Integer idEspecialidad);    
+    @Query("SELECT s FROM Servicio s WHERE s.especialidad.idEspecialidad = :idEspecialidad AND s.activo = true")
+    List<Servicio> findActivosPorEspecialidad(@Param("idEspecialidad") Integer idEspecialidad);
 }
