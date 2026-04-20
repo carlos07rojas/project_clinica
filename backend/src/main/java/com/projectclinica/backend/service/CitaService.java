@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 // import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Service
 public class CitaService {
@@ -129,6 +130,73 @@ public class CitaService {
         Cita guardada = citaRepository.save(cita);
         return convertirAReponseDTO(guardada);
 
+    }
+
+    // poder cancelar una cita
+    public CitaResponseDTO cancelarCita(Integer idCita) {
+        Cita cita = citaRepository.findById(idCita).orElseThrow(() -> new RuntimeException(
+                "Cita " + idCita + " no enconrtrada"));
+
+        // la cita solo se puede encontrar si esta PENDIENDTE o CANCELADA
+        if (cita.getEstado().equals("COMPLETADA")) {
+            throw new RuntimeException(
+                    "No se puede cancelar una cita COMPLETADA");
+        }
+        if (cita.getEstado().equals("CANCELADA")) {
+            throw new RuntimeException("La cita ya esta CANCELADA");
+        }
+
+        cita.setEstado("CANCELADA");
+        Cita actualizada = citaRepository.save(cita);
+        return convertirAReponseDTO(actualizada);
+    }
+    
+    // poder confirmar una cita
+    public CitaResponseDTO confirmarCita(Integer idCita) {
+        Cita cita = citaRepository.findById(idCita).orElseThrow(() -> new RuntimeException(
+                "Cita " + idCita + " no enconrtrada"));
+
+        //  la cita solo se puede confirmar si esta PENDIENTE
+        if (!cita.getEstado().equals("PENDIENTE")) {
+            throw new RuntimeException(
+                    "Solo se puede confirmar Citas en estado PENDIENTE. Estado actual de la cita: " + cita.getEstado());
+        }
+
+        cita.setEstado("CONFIRMADA");
+        Cita actualizada = citaRepository.save(cita);
+        return convertirAReponseDTO(actualizada);
+    }
+    
+    // poder completar una cita
+    public CitaResponseDTO completarCita(Integer idCita, String observaciones) {
+        Cita cita = citaRepository.findById(idCita).orElseThrow(() -> new RuntimeException(
+                "Cita " + idCita + " no enconrtrada"));
+        // la cita solo se puede completar si esta CONFIRMADA
+        if (!cita.getEstado().equals("CONFIRMADA")) {
+            throw new RuntimeException(
+                    "Solo se puede completar citas en estado CONFIRMADA. Estado actual de la cita: "
+                            + cita.getEstado());
+        }
+
+        cita.setEstado("COMPLETADA");
+        if (observaciones != null && !observaciones.isBlank()) {
+            cita.setObservaciones(observaciones);
+        }
+
+        Cita actualizada = citaRepository.save(cita);
+        return convertirAReponseDTO(actualizada);
+    }
+    
+    // poder obtener citas de un paciente
+    public List<CitaResponseDTO> obtenerPorPaciente(Integer idPaciente) {
+        return citaRepository.findByPacienteId(idPaciente).stream().map(this::convertirAReponseDTO)
+                .collect(Collectors.toList());
+    }
+    
+    // poder obtener citas de un medico
+    public List<CitaResponseDTO> obtenerPorMedico(Integer idMedico) {
+        return citaRepository.findByMedicoId(idMedico).stream().map(this::convertirAReponseDTO)
+                .collect(Collectors.toList());
     }
     
     private CitaResponseDTO convertirAReponseDTO(Cita c) {
