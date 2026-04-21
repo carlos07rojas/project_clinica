@@ -45,7 +45,7 @@ public class PacienteService {
                     "Ya existe un paciente con el DNI: " + dto.getDni());
         }
         // verificar que se ingrese solo 8 digitos en el DNI
-        if (!dto.getDni().matches("\\d{8]")) {
+        if (!dto.getDni().matches("\\d{8}")) {
             throw new RuntimeException(
                     "El DNI debe tener 8 digitos");
         }
