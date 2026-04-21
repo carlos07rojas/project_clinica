@@ -49,7 +49,7 @@ public class EspecialidadService {
     // desactivar especialidad - borrado logico
     public EspecialidadResponseDTO desactivarEspecialidad(Integer id) {
         Especialidad especialidad = especialidadRepository.findById(id).orElseThrow(() -> new RuntimeException(
-                "Especilidad no encontrada con id: " + id));
+                "Especilidad " + id + "no encontrada"));
 
         if (!especialidad.getActivo()) {
             throw new RuntimeException(
