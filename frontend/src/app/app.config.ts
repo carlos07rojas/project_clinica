@@ -8,6 +8,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     // habilita HttpClient en toda la aplicación sin esto ningún servicio puede hacer peticiones HTTP
-    provideHttpClient()
+    provideHttpClient() // es como registrar un cliente HTTP global 
   ]
 };
