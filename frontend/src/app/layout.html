@@ -1,0 +1,58 @@
+<div class="flex h-screen bg-gray-100">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-blue-800 text-white flex flex-col shadow-lg">
+
+    <!-- logo -->
+    <div class="px-6 py-5 border-b border-blue-700 flex items-center gap-3">
+      <ng-icon name="heroBuildingOffice2" size="28" class="text-blue-200">
+      </ng-icon>
+      <div>
+        <h1 class="text-base font-bold leading-tight">Agenda Clínica</h1>
+        <p class="text-xs text-blue-300">Sistema de Gestión</p>
+      </div>
+    </div>
+
+    <!-- menú -->
+    <nav class="flex-1 px-3 py-4 space-y-1">
+      @for (item of menuItems; track item.ruta) {
+        <a [routerLink]="item.ruta"
+           routerLinkActive="bg-blue-600 text-white"
+           class="flex items-center gap-3 px-4 py-2.5 rounded-lg
+                  text-blue-100 hover:bg-blue-700 hover:text-white
+                  transition-colors duration-150 text-sm font-medium">
+          <ng-icon [name]="item.icono" size="18"></ng-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- footer -->
+    <div class="px-6 py-4 border-t border-blue-700">
+      <p class="text-xs text-blue-300">@copy - v1.0.0 — Desarrollo</p>
+    </div>
+
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- NAVBAR -->
+    <header class="bg-white shadow-sm px-6 py-4 flex items-center
+                   justify-between">
+      <h2 class="text-gray-600 text-sm font-medium">
+        Sistema de Agenda Médica
+      </h2>
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <ng-icon name="heroUser" size="16"></ng-icon>
+        <span>Administrador</span>
+      </div>
+    </header>
+
+    <!-- pantalla activa -->
+    <main class="flex-1 overflow-y-auto p-6">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</div>
