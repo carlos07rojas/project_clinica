@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "ESPECIALIAD")
+@Table(name = "ESPECIALIDAD")
 public class Especialidad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

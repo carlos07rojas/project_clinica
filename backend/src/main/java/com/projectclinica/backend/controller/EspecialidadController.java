@@ -42,7 +42,7 @@ public class EspecialidadController {
     }
 
     // para poder eliminar o un borrado logico al usuario
-    @PatchMapping("/{id}/desactivas")
+    @PatchMapping("/{id}/desactivar")
     public ResponseEntity<EspecialidadResponseDTO> desactivar(@PathVariable Integer id) {
         return ResponseEntity.ok(especialidadService.desactivarEspecialidad(id));
     }

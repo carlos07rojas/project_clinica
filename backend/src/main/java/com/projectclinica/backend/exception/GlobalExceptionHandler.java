@@ -24,7 +24,9 @@ public class GlobalExceptionHandler {
         // captura cualquier otro error inesperado que no hayamos contemplado
         Map<String, Object> response = new HashMap<>();
         response.put("status", 500);
-        response.put("mensaje", "ERROR interno del servidor");
+        response.put("mensaje", ex.getMessage());
+        response.put("tipo", ex.getClass().getSimpleName());
+        // response.put("mensaje", "ERROR interno del servidor");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

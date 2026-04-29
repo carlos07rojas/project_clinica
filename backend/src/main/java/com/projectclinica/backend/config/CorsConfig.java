@@ -2,26 +2,28 @@ package com.projectclinica.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 
 
 @Configuration // le dice a spring que esta clase define configuraciones del sistema
 public class CorsConfig {
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        // permitir peticiones desde Angular en desarrollo
-        config.addAllowedOrigin("http//localhost:4200");
-        // permitir todos los métodos HTTP: GET, POST, PUT, PATCH, DELETE
-        config.addAllowedMethod("*");
-        // permitir todos los headers incluyendo Authorization para cuando agreguemos seguridad después
-        config.addAllowedHeader("*");
-
-        // aplicar esta configuración a todos los endpoints
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
-        return new CorsFilter(source);
+   @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                    // permite peticiones desde Angular
+                    .allowedOrigins("http://localhost:4200")
+                    // permite todos los métodos HTTP
+                    .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                    // permite todos los headers
+                    .allowedHeaders("*")
+                    // permite credenciales
+                    .allowCredentials(true);
+            }
+        };
     }
 }
