@@ -1,1 +1,46 @@
-<p>medicos works!</p>
+<div class="p-6">
+  <!-- emcabezado -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2x1 font-bold text-gray-800">Médico</h1>
+      <p class="text-sm text-gray-500 mt-1">Gestiona el persona medico de la clinica</p>
+    </div>
+    <button
+      (click)="abrirModal()"
+      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded lg-text-sm font-medium transition-colors"
+    >
+      + Nuevo Medico
+    </button>
+  </div>
+
+  <!-- Mensaje -->
+  @if (mensaje) {
+    <div
+      class="
+        esError
+          ? 'bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 mb-4 text-sm'
+          : 'bg-green-50 text-green-700 border border-green-200 rounded-lg px-4 py-3 mb-4 text-sm'
+      "
+    >
+      {{ mensaje }}
+    </div>
+  }
+
+  <!-- tabla -->
+   <div class="bg-whit rounded-xl shadow-sm border border-gray-200">
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="border-b border-gray-200">
+                <th class="text-left px-6 py-4 text-gray-500 font-medium">Médico</th>
+                <th class="text-left px-6 py-4 text-gray-500 font-medium">Especialidad</th>
+                <th class="text-left px-6 py-4 text-gray-500 font-medium">Colegiatura</th>
+                <th class="text-left px-6 py-4 text-gray-500 font-medium">Telefono</th>
+                <th class="text-left px-6 py-4 text-gray-500 font-medium">Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+   </div>
+</div>

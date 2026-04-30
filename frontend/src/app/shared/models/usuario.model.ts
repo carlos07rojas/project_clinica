@@ -3,7 +3,7 @@ export interface UsuarioRequest {
   apellido: string;
   email: string;
   password: string;
-  rol: number;
+  rol: string;
 }
 
 export interface UsuarioResponse {
@@ -11,7 +11,7 @@ export interface UsuarioResponse {
   nombre: string;
   apellido: string;
   email: string;
-  rol: number;
+  rol: string;
   activo: boolean;
   fechaCreacion: string;
 }
