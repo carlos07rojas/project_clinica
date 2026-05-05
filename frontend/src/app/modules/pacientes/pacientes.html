@@ -1,1 +1,326 @@
-<p>pacientes works!</p>
+<div class="p-6">
+  <!-- el emcabezado -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2x1 font-bold text-gray-800">Pacientes</h1>
+      <p class="text-sm text-gray-500 mt-1">Gestiona el registro de los pacientes de la clinica</p>
+    </div>
+    <button
+      (click)="abrirModal()"
+      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium-transition-colors"
+    >
+      + Nuevo Paciente
+    </button>
+  </div>
+
+  <!-- mensajes -->
+  @if (mensaje) {
+    <div
+      [class]="
+        esError
+          ? 'bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 mb-4 text-sm'
+          : 'bg-green-50 text-green-700 border border-green-200 rounded-lg px-4 py-3 mb-4 text-sm'
+      "
+    >
+      {{ mensaje }}
+    </div>
+  }
+  <!-- barra de busqueda -->
+  <div class="flex gap-4 mb-4">
+    <div class="flex-2 relative">
+      <input
+        type="text"
+        [(ngModel)]="textoBusqueda"
+        placeholder="Buscar..."
+        class="w-full border border-gray-300 rounded-lg pl-4 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+      />
+    </div>
+    <!-- busqueda exacta por el backend -->
+    <div class="flex gap-2">
+      <input
+        type="text"
+        [(ngModel)]="dniBusqueda"
+        placeholder="Buscar por DNI"
+        maxlength="8"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-48"
+      />
+      <button
+        (click)="buscarPorDni()"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+      >
+        Buscar
+      </button>
+      @if (pacienteEncontrado) {
+        <button
+          (click)="limpiarBusquedaDni()"
+          class="border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+        >
+          Limpiar
+        </button>
+      }
+    </div>
+  </div>
+  <!-- esto se mostrara solo cuando se encuentre al paciente por dni -->
+  @if (pacienteEncontrado) {
+    <div class="bg-blue-50 border-blue-200 rounded-xl p-4 mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center font-bold text-sm"
+          >
+            {{ pacienteEncontrado.nombre.charAt(0) }}
+            {{ pacienteEncontrado.apellido.charAt(0) }}
+          </div>
+          <div>
+            <p class="font-semibold text-gray-800">
+              {{ pacienteEncontrado.nombre }}
+              {{ pacienteEncontrado.apellido }}
+            </p>
+            <p class="text-xs text-gray-500">
+              DNI: {{ pacienteEncontrado.dni }} •
+              {{ calcularEdad(pacienteEncontrado.fechaNacimiento) }} años •
+              {{ pacienteEncontrado.email }}
+            </p>
+          </div>
+        </div>
+        <span class="text-xs text-blue-600 font-medium bg-blue-100 px-3 py-1 rounded-full"
+          >Encontrado</span
+        >
+      </div>
+    </div>
+  }
+
+  <!-- tabla principal  -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="px-6 py-3 border-b border-gray-100 flex items-center-justify-between">
+      <span class="text-xs text-gray-500">
+        <!--  -->
+        {{ pacientesFiltrados.length }} de {{ pacientes.length }} pacientes
+      </span>
+    </div>
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-gray-200">
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Paciente</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">DNI</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Edad</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Sexo</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Telefono</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando) {
+          <tr>
+            <td colspan="6" class="text-center py-10 text-gray-400">Cargando...</td>
+          </tr>
+        }
+        @for (pac of pacientesFiltrados; track pac.idPaciente) {
+          <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold"
+                >
+                  {{ pac.nombre.charAt(0) }}{{ pac.apellido.charAt(0) }}
+                </div>
+                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}ç</p>
+              </div>
+            </td>
+            <td class="px-6 py-4 font mono text-xs text-gray-600">
+              {{ pac.dni }}
+            </td>
+            <td class="px-6 py-4 text-gray-600">{{ calcularEdad(pac.fechaNacimiento) }} años</td>
+            <td class="px-6 py-4">
+              @if (pac.sexo === 'M') {
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font medium"
+                  >Masculino</span
+                >
+              } @else if (pac.sexo === 'F') {
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font medium"
+                  >Femenino</span
+                >
+              } @else {
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font medium"
+                  >Otro</span
+                >
+              }
+            </td>
+          </tr>
+        }
+        @if (pacientesFiltrados.length === 0 && !cargando) {
+          <tr>
+            <td colspan="6" class="text-center py-10 text-gray-400">
+              @if (textoBusqueda) {
+                No se encontraro pacientes con "{{ textoBusqueda }}"
+              } @else {
+                No hay pacientes registrados
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- modal para crear paciente -->
+@if (mostrarModal) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800">Nuevo Paciente</h2>
+        <button (click)="cerrarModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">
+          X
+        </button>
+      </div>
+      <div class="px-6 py-4 space-y-4">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-sm font-medium text-gray-700">Usuario</label>
+            <button (click)="abrirModalUsuario()" class="text-xs text-blue-600 hover:text-blue-800">+ Crear Usuario</button>
+          </div>
+          <select
+            [(ngModel)]="nuevoPaciente.idUsuario"
+            class="w-full border-border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="0">Selecciona un usuario</option>
+            @for (u of usuarioPaciente; track u.idUsuario) {
+              <option value="u.idUsuario">{{ u.nombre }} {{ u.apellido }} - {{ u.email }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoPaciente.dni"
+            placeholder="Ejemplo: 87654321"
+            maxlength="8"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de nacimiento</label>
+            <input
+              type="date"
+              [(ngModel)]="nuevoPaciente.fechaNacimiento"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+            <select
+              [(ngModel)]="nuevoPaciente.sexo"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecciona</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+              <option value="O">Otro</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoPaciente.telefono"
+            placeholder="Ejemplo: 987654321"
+            maxlength="9"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Direccion</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoPaciente.direccion"
+            placeholder="Ejemplo: Av. Lima 123, San Isidro"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+      <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
+        <button
+          (click)="cerrarModal()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="crearPaciente()"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- modal para crear usuario paciente -->
+@if (mostrarModalUsuario) {
+  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray 200">
+        <h2 class="text-lg font-semibold text-gray-800">Crear Usuario Paciente</h2>
+        <button (click)="cerrarModalUsuario()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">X</button>
+      </div>
+      <div class="px-6 py-4 space-y-4">
+        <div class="grid grid-cols-2 gap-4"></div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoUsuarioPaciente.nombre"
+            placeholder="Carlos"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoUsuarioPaciente.apellido"
+            placeholder="Rojas"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700-mb-1">Email</label>
+          <input
+            type="email"
+            [(ngModel)]="nuevoUsuarioPaciente.email"
+            placeholder="rojas@gmail.com"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          <input
+            type="password"
+            [(ngModel)]="nuevoUsuarioPaciente.password"
+            placeholder="••••••••"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+      <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
+        <button
+          (click)="cerrarModalUsuario()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="crearUsuarioPaciente()"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+        >
+          Crear Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+}

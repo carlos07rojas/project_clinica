@@ -16,7 +16,11 @@
   <!-- Mensaje -->
   @if (mensaje) {
     <div
-      class="esError ? 'bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 mb-4 text-sm' : 'bg-green-50 text-green-700 border border-green-200 rounded-lg px-4 py-3 mb-4 text-sm'"
+      [class]="
+        esError
+          ? 'bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 mb-4 text-sm'
+          : 'bg-green-50 text-green-700 border border-green-200 rounded-lg px-4 py-3 mb-4 text-sm'
+      "
     >
       {{ mensaje }}
     </div>
@@ -221,8 +225,18 @@
         </div>
       </div>
       <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
-        <button (click)="cerrarModalUsuario()" class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancelar</button>
-        <button (click)="crearUsuarioMedico()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">Crear Usuario</button>
+        <button
+          (click)="cerrarModalUsuario()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="crearUsuarioMedico()"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+        >
+          Crear Usuario
+        </button>
       </div>
     </div>
   </div>
