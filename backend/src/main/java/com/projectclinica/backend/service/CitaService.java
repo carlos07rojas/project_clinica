@@ -37,40 +37,37 @@ public class CitaService {
         this.pacienteRepository = pacienteRepository;
         this.servicioRepository = servicioRepository;
     }
-    
+
     // agrega citas
     public CitaResponseDTO agendarCita(CitaRequestDTO dto) {
         // para esto el paciente debe existir
         Paciente paciente = pacienteRepository.findById(dto.getIdPaciente()).orElseThrow(() -> new RuntimeException(
-            "Paciente no encontrado con id: " + dto.getIdPaciente()
-        ));
+                "Paciente no encontrado con id: " + dto.getIdPaciente()));
 
         // para esto el medico debe de existir
         Medico medico = medicoRepository.findById(dto.getIdMedico()).orElseThrow(() -> new RuntimeException(
-            "Medico no encontrado con id: " + dto.getIdMedico()
-        ));
+                "Medico no encontrado con id: " + dto.getIdMedico()));
 
         // el medico debe estar activo en la clinica
         if (!medico.getUsuario().getActivo()) {
             throw new RuntimeException(
                     "El medico no esta activo");
         }
-        
+
         // el servicio debe existir y estar activo
         Servicio servicio = servicioRepository.findById(dto.getIdServicio()).orElseThrow(() -> new RuntimeException(
-            "El servicio " + dto.getIdServicio() + " no fue encontrado"
-        ));
+                "El servicio " + dto.getIdServicio() + " no fue encontrado"));
         if (!servicio.getActivo()) {
             throw new RuntimeException(
                     "El servicio no esta activo");
         }
-        
+
         // el servicio debe pertenecer a una especialidad de un medico
         if (!servicio.getEspecialidad().getIdEspecialidad().equals(medico.getEspecialidad().getIdEspecialidad())) {
             throw new RuntimeException(
                     "El servicio no corresponde al servicio del medico");
         }
-        
+
         // la cita debe agendarse con 24 horas de anticipacion
         LocalDateTime ahora = LocalDateTime.now();
         LocalDateTime minimoPermitido = ahora.plusHours(24);
@@ -78,19 +75,20 @@ public class CitaService {
             throw new RuntimeException(
                     "La cita debe agendarse con al menos 24 horas de anticipacion");
         }
-        
-        //el medico debe trabajar ese dia de la semana
+
+        // el medico debe trabajar ese dia de la semana
         int diaSemana = dto.getFechaHora().getDayOfWeek().getValue();
         var horariosDelDia = horarioCitasRepository.findHorariosActivosPorMedicoYDia(dto.getIdMedico(), diaSemana);
         if (horariosDelDia.isEmpty()) {
             throw new RuntimeException(
                     "El medico no trabaja ese dia de la semana");
         }
-        
-        // la hora de la cita debe estar dentro del rango del horario laboral del medico en ese dia
+
+        // la hora de la cita debe estar dentro del rango del horario laboral del medico
+        // en ese dia
         var horario = horariosDelDia.get(0);
         var horaCita = dto.getFechaHora().toLocalTime();
-        if (horaCita.isBefore(horario.getHoraInicio()) || 
+        if (horaCita.isBefore(horario.getHoraInicio()) ||
                 horaCita.isAfter(horario.getHorarioFin())) {
             throw new RuntimeException(
                     "La hora esta fuera del horario del medico. Trabaja de " + horario.getHoraInicio() + " a "
@@ -101,7 +99,7 @@ public class CitaService {
             throw new RuntimeException(
                     "El medico no esta disponible para esa hora");
         }
-        
+
         // el paciente no debe tener una cita en la misma hora
         List<Cita> citasPaciente = citaRepository.findByPacienteId(dto.getIdPaciente());
         boolean pacienteTieneCitaEsaHora = citasPaciente.stream()
@@ -110,21 +108,22 @@ public class CitaService {
             throw new RuntimeException(
                     "El paciente ya tiene una cita en ese horario");
         }
-        
-        // el paciente no puede tener mas de 3 citas pendientes al mismo tiempo 
+
+        // el paciente no puede tener mas de 3 citas pendientes al mismo tiempo
         long citasPendientes = citasPaciente.stream().filter(c -> c.getEstado().equals("PENDIENTE")).count();
         if (citasPendientes >= 3) {
             throw new RuntimeException(
                     "El paciente ya tiene 3 citas pendientes. Debe confirmar o cancelar alguna antes de agendar otra");
         }
-        
+
         Cita cita = new Cita();
         cita.setPaciente(paciente);
         cita.setMedico(medico);
         cita.setServicio(servicio);
         cita.setFechaHora(dto.getFechaHora());
         cita.setDuracionMin(servicio.getDuracionMin());
-        // usamos la duración del servicio directamente para que sea consistente con lo que ofrece la clínica
+        // usamos la duración del servicio directamente para que sea consistente con lo
+        // que ofrece la clínica
         cita.setObservaciones(dto.getObservaciones());
 
         Cita guardada = citaRepository.save(cita);
@@ -150,13 +149,13 @@ public class CitaService {
         Cita actualizada = citaRepository.save(cita);
         return convertirAReponseDTO(actualizada);
     }
-    
+
     // poder confirmar una cita
     public CitaResponseDTO confirmarCita(Integer idCita) {
         Cita cita = citaRepository.findById(idCita).orElseThrow(() -> new RuntimeException(
                 "Cita " + idCita + " no enconrtrada"));
 
-        //  la cita solo se puede confirmar si esta PENDIENTE
+        // la cita solo se puede confirmar si esta PENDIENTE
         if (!cita.getEstado().equals("PENDIENTE")) {
             throw new RuntimeException(
                     "Solo se puede confirmar Citas en estado PENDIENTE. Estado actual de la cita: " + cita.getEstado());
@@ -166,7 +165,7 @@ public class CitaService {
         Cita actualizada = citaRepository.save(cita);
         return convertirAReponseDTO(actualizada);
     }
-    
+
     // poder completar una cita
     public CitaResponseDTO completarCita(Integer idCita, String observaciones) {
         Cita cita = citaRepository.findById(idCita).orElseThrow(() -> new RuntimeException(
@@ -186,19 +185,25 @@ public class CitaService {
         Cita actualizada = citaRepository.save(cita);
         return convertirAReponseDTO(actualizada);
     }
-    
+
     // poder obtener citas de un paciente
     public List<CitaResponseDTO> obtenerPorPaciente(Integer idPaciente) {
         return citaRepository.findByPacienteId(idPaciente).stream().map(this::convertirAReponseDTO)
                 .collect(Collectors.toList());
     }
-    
+
     // poder obtener citas de un medico
     public List<CitaResponseDTO> obtenerPorMedico(Integer idMedico) {
         return citaRepository.findByMedicoId(idMedico).stream().map(this::convertirAReponseDTO)
                 .collect(Collectors.toList());
     }
-    
+
+    // poder obtener citas por estado
+    public List<CitaResponseDTO> obtenerPorEstado(String estado) {
+        return citaRepository.findByEstado(estado).stream().map(this::convertirAReponseDTO)
+                .collect(Collectors.toList());
+    }
+
     private CitaResponseDTO convertirAReponseDTO(Cita c) {
         CitaResponseDTO dto = new CitaResponseDTO();
         dto.setIdCita(c.getIdCita());
@@ -214,6 +219,6 @@ public class CitaService {
         dto.setObservacion(c.getObservaciones());
         dto.setFechaCreacion(c.getFechaCreacion());
         return dto;
-    }    
-    
+    }
+
 }

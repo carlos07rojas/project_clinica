@@ -58,6 +58,12 @@ public class CitaController {
     @PatchMapping("/{id}/completar")
     public ResponseEntity<CitaResponseDTO> completar(@PathVariable Integer id,
             @RequestParam(required = false) String observaciones) { // @RequestParam es opcional — puede venir o no
-        return ResponseEntity.ok(citaService.completarCita(id, observaciones));                
+        return ResponseEntity.ok(citaService.completarCita(id, observaciones));
+    }
+
+    // es para obtener citas filtradas por estado
+    @GetMapping
+    public ResponseEntity<List<CitaResponseDTO>> obtenerPorEstado(@RequestParam String estado) {
+        return ResponseEntity.ok(citaService.obtenerPorEstado(estado));
     }
 }
