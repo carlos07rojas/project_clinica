@@ -178,7 +178,9 @@
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="block text-sm font-medium text-gray-700">Usuario</label>
-            <button (click)="abrirModalUsuario()" class="text-xs text-blue-600 hover:text-blue-800">+ Crear Usuario</button>
+            <button (click)="abrirModalUsuario()" class="text-xs text-blue-600 hover:text-blue-800">
+              + Crear Usuario
+            </button>
           </div>
           <select
             [(ngModel)]="nuevoPaciente.idUsuario"
@@ -266,7 +268,12 @@
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray 200">
         <h2 class="text-lg font-semibold text-gray-800">Crear Usuario Paciente</h2>
-        <button (click)="cerrarModalUsuario()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">X</button>
+        <button
+          (click)="cerrarModalUsuario()"
+          class="text-gray-400 hover:text-gray-600 text-xl font-bold"
+        >
+          X
+        </button>
       </div>
       <div class="px-6 py-4 space-y-4">
         <div class="grid grid-cols-2 gap-4"></div>
