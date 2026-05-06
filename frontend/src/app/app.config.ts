@@ -10,7 +10,8 @@ import {
   heroCalendarDays,
   heroClipboardDocument,
   heroCreditCard,
-  heroBuildingOffice2
+  heroBuildingOffice2,
+  heroCurrencyDollar 
 } from '@ng-icons/heroicons/outline';
 
 export const appConfig: ApplicationConfig = {
@@ -26,7 +27,8 @@ export const appConfig: ApplicationConfig = {
       heroCalendarDays,
       heroClipboardDocument,
       heroCreditCard,
-      heroBuildingOffice2
+      heroBuildingOffice2,
+      heroCurrencyDollar
     })
   ]
 };
