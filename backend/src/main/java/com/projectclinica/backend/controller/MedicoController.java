@@ -33,7 +33,7 @@ public class MedicoController {
     }
 
     // este endpoint servira para cargar los medicos 
-    @GetMapping("/por-espacialidad")
+    @GetMapping("/por-especialidad")
     public ResponseEntity<List<MedicoResponseDTO>> obtenerPorEspecialidad(@RequestParam Integer idEspecialidad) {
         return ResponseEntity.ok(medicoService.obtenerPorEspecialidad(idEspecialidad));
     }

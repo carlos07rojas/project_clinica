@@ -87,7 +87,7 @@ public class MedicoService {
         dto.setTelefono(m.getTelefono());
         // se incluye el nombre de la especialidad directamente para que el frontend no tenga que hacer otra consulta
         dto.setIdEspecialidad(m.getEspecialidad().getIdEspecialidad());
-        dto.setNombre(m.getEspecialidad().getNombre());
+        dto.setNombreEspecialidad(m.getEspecialidad().getNombre());
         return dto;
     }
 }
