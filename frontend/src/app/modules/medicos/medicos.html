@@ -110,9 +110,9 @@
             [(ngModel)]="nuevoMedico.idUsuario"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus-outline-none docus:ring-2 focus:ring-blue-500"
           >
-            <option value="0">Selecciona un usuario</option>
+            <option [value]="0">Selecciona un usuario</option>
             @for (u of usuariosMedico; track u.idUsuario) {
-              <option value="u.idUsuario">{{ u.nombre }} {{ u.apellido }} - {{ u.email }}</option>
+              <option [value]="u.idUsuario">{{ u.nombre }} {{ u.apellido }} - {{ u.email }}</option>
             }
           </select>
         </div>
@@ -135,9 +135,9 @@
             [(ngModel)]="nuevoMedico.idEspecialidad"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="0">Selecciona una especialidad</option>
+            <option [value]="0">Selecciona una especialidad</option>
             @for (esp of especialidades; track esp.idEspecialidad) {
-              <option value="esp.idEspecialidad">
+              <option [value]="esp.idEspecialidad">
                 {{ esp.nombre }}
               </option>
             }
@@ -174,7 +174,7 @@
 <!-- modal para crear usuario medico que aparece dentro del modal medico -->
 @if (mostrarModalUsuario) {
   <div class="fixed inset-0 bg-black bg-opocity-60 flex items-center justify-center z-50">
-    <div class="bg-white rounded-x1 shadow-x1 w-full max-w-md mx-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-semibold text-gray-800">Crear Usuario Medico</h2>
         <button

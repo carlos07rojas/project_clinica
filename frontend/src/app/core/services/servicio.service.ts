@@ -9,7 +9,7 @@ export interface ServicioResponse {
   nombre: string;
   descripcion: string;
   precio: number;
-  diracionMin: number;
+  duracionMin: number;
   idEspecialidad: number;
   nombreEspecialidad: string;
   activo: boolean;

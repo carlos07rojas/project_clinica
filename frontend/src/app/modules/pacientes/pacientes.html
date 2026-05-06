@@ -124,7 +124,7 @@
                 >
                   {{ pac.nombre.charAt(0) }}{{ pac.apellido.charAt(0) }}
                 </div>
-                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}ç</p>
+                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}</p>
               </div>
             </td>
             <td class="px-6 py-4 font mono text-xs text-gray-600">
@@ -145,6 +145,12 @@
                   >Otro</span
                 >
               }
+            </td>
+            <td class="px-6 py-4 text-gray-600">
+              {{ pac.telefono || '-' }}
+            </td>
+            <td class="px-6 py-4 text-gray-600">
+              {{ pac.email }}
             </td>
           </tr>
         }
@@ -186,9 +192,9 @@
             [(ngModel)]="nuevoPaciente.idUsuario"
             class="w-full border-border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="0">Selecciona un usuario</option>
+            <option [value]="0">Selecciona un usuario</option>
             @for (u of usuarioPaciente; track u.idUsuario) {
-              <option value="u.idUsuario">{{ u.nombre }} {{ u.apellido }} - {{ u.email }}</option>
+              <option [value]="u.idUsuario">{{ u.nombre }} {{ u.apellido }} - {{ u.email }}</option>
             }
           </select>
         </div>

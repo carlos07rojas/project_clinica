@@ -127,7 +127,7 @@ export class Medicos implements OnInit {
         this.usuariosMedico.push(data);
         // con eso se selecciona automaticamente
         this.nuevoMedico.idUsuario = data.idUsuario;
-        this.cerrarModalUsuario;
+        this.cerrarModalUsuario();
         this.mostrarMensaje('Usuario creado. Ahora completa el perfil medico', false);
       },
       error: (err) => {

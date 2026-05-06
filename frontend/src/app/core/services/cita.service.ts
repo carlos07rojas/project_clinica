@@ -20,6 +20,10 @@ export class CitaService {
     return this.http.get<CitaResponse[]>(`${this.url}/medico/${idMedico}`);
   }
 
+  obtenerPorEstado(estado: string): Observable<CitaResponse[]> {
+    return this.http.get<CitaResponse[]>(`${this.url}?estado=${estado}`);
+  }
+
   agendar(data: CitaRequest): Observable<CitaResponse> {
     return this.http.post<CitaResponse>(this.url, data);
   }
