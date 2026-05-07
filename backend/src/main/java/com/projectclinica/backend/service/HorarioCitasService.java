@@ -28,9 +28,9 @@ public class HorarioCitasService {
                 .orElseThrow(() -> new RuntimeException("No existe el Medico con id: " + dto.getIdMedico()));
 
         // verificar los dias de semana que va a ver atencion
-        if (dto.getDiaSemana() < 1 || dto.getDiaSemana() > 6) {
+        if (dto.getDiaSemana() < 1 || dto.getDiaSemana() > 7) {
             throw new RuntimeException(
-                    "Día de semana inválido. Debe ser entre 1 (lunes) y 6 (sabado)");
+                    "Día de semana inválido. Debe ser entre 1 (lunes) y 7 (sabado)");
         }
 
         // verificar la hora de inicio o el horario para evitar datos inconsistentes

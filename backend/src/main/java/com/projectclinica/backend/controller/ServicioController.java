@@ -29,10 +29,16 @@ public class ServicioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(servicioService.crearServicio(dto));
     }
 
-    // cuando el paciente elige especialidad y médico el frontend carga los servicios disponibles
+    // cuando el paciente elige especialidad y médico el frontend carga los
+    // servicios disponibles
     @GetMapping("/por-especialidad")
     public ResponseEntity<List<ServicioResponseDTO>> obtenerPorEspecialidad(@RequestParam Integer idEspecialidad) {
         return ResponseEntity.ok(servicioService.obtenerPorEspecialidad(idEspecialidad));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ServicioResponseDTO>> obtenerTodos() {
+        return ResponseEntity.ok(servicioService.obtenerTodos());
     }
 
     @PatchMapping("/{id}/desactivar")

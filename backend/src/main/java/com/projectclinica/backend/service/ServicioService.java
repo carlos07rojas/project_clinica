@@ -20,10 +20,10 @@ public class ServicioService {
         this.servicioRepository = servicioRepository;
         this.especialidadRepository = especialidadRepository;
     }
-    
+
     // Crear servicio
     public ServicioResponseDTO crearServicio(ServicioRequestDTO dto) {
-        // la especialidad debe existir y estar activa 
+        // la especialidad debe existir y estar activa
         Especialidad especialidad = especialidadRepository.findById(dto.getIdEspecialidad())
                 .orElseThrow(() -> new RuntimeException(
                         "No existe la especialidad con id: " + dto.getIdEspecialidad()));
@@ -52,10 +52,11 @@ public class ServicioService {
         Servicio guardado = servicioRepository.save(servicio);
         return convertirAResponseDTO(guardado);
     }
-    
+
     // obtener servicios activos por especialidad
     public List<ServicioResponseDTO> obtenerPorEspecialidad(Integer idEspecialidad) {
-        // esto hara que cuando se seleccion las especialidades solo se muestren los activos
+        // esto hara que cuando se seleccion las especialidades solo se muestren los
+        // activos
         return servicioRepository.findActivosPorEspecialidad(idEspecialidad).stream().map(this::convertirAResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -68,13 +69,17 @@ public class ServicioService {
             throw new RuntimeException(
                     "El servicio ya esta activo");
         }
-        
+
         servicio.setActivo(false);
         Servicio actualizado = servicioRepository.save(servicio);
         return convertirAResponseDTO(actualizado);
-    }    
+    }
 
-    private ServicioResponseDTO convertirAResponseDTO(Servicio s){
+    public List<ServicioResponseDTO> obtenerTodos() {
+        return servicioRepository.findAll().stream().map(this::convertirAResponseDTO).collect(Collectors.toList());
+    }
+
+    private ServicioResponseDTO convertirAResponseDTO(Servicio s) {
         ServicioResponseDTO dto = new ServicioResponseDTO();
         dto.setIdServicio(s.getIdServicio());
         dto.setNombre(s.getNombre());
@@ -86,5 +91,5 @@ public class ServicioService {
         dto.setActivo(s.getActivo());
         return dto;
     }
-    
+
 }
