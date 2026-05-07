@@ -303,8 +303,9 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Médico</label>
           <select
             [(ngModel)]="nuevaCita.idMedico"
+            (ngModelChange)="onMedicoChange()"
             [disabled]="idEspecialidadSelecc === 0"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
           >
             <option [value]="0">
               {{
@@ -342,18 +343,61 @@
           </select>
         </div>
 
-        <!-- seleccionar fecha y hora || permite selecciona fecha y hora -->
+        <!-- seleccionar fecha -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Fecha y Hora</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
           <input
-            type="datetime-local"
-            [(ngModel)]="nuevaCita.fechaHora"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="date"
+            [ngModel]="nuevaCita.fechaHora ? nuevaCita.fechaHora.split('T')[0] : ''"
+            (ngModelChange)="nuevaCita.fechaHora = $event; onFechaChange()"
+            [disabled]="nuevaCita.idMedico === 0"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
           />
-          <p class="text-xs text-gray-400 mt-1">
-            Agendar cita con al menos 24 horas de anticipación
-          </p>
+          @if (nuevaCita.idMedico !== 0 && horariosMedico.length > 0) {
+            <p class="text-xs text-gray-400 mt-1">
+              El medico trabaja:
+              @for (h of horariosMedico; track h.idHorario) {
+                <span class="font-medium text-blue-600">
+                  {{ diaSemana[h.diaSemana] }}
+                  ({{ h.horaInicio.slice(0, 5) }} - {{ h.horaFin.slice(0, 5) }})
+                </span>
+              }
+            </p>
+          }
         </div>
+
+        <!-- seleccionar hora disponible -->
+        @if (horasDisponibles.length > 0) {
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"> Hora disponible </label>
+            <!-- grid de botones de hora -->
+            <div class="grid grid-cols-4 gap-2">
+              @for (hora of horasDisponibles; track hora) {
+                <button
+                  type="button"
+                  (click)="onHoraChange(hora)"
+                  [class]="
+                    nuevaCita.fechaHora.includes(hora)
+                      ? 'bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium'
+                      : 'borde border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs hover:border-blue-400 hover:text-blue-600 transition-colors'
+                  "
+                >
+                  {{ hora }}
+                </button>
+              }
+            </div>
+            <p class="text-xs text-gray-400 mt-1">
+              La cita debe agendarse con 24 horas de anticipacion
+            </p>
+          </div>
+        }
+        @if (nuevaCita.idMedico !== 0 && horasDisponibles.length === 0 && nuevaCita.fechaHora) {
+          <div
+            class="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-sm text-yellow-700"
+          >
+            El médico no trabaja el día seleccionado. Elige otra fecha.
+          </div>
+        }
 
         <!-- observaciones opcionales-->
         <div>

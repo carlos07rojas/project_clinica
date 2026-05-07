@@ -6,6 +6,7 @@ import { MedicoService } from '../../core/services/medico.service';
 import { PacienteService } from '../../core/services/paciente.service';
 import { EspecialidadService } from '../../core/services/especialidad.service';
 import { ServicioService, ServicioResponse } from '../../core/services/servicio.service';
+import { HorarioService, HorarioResponse } from '../../core/services/horario.service';
 import { CitaRequest, CitaResponse } from '../../shared/models/cita.model';
 import { MedicoResponse } from '../../shared/models/medico.model';
 import { PacienteResponse } from '../../shared/models/paciente.model';
@@ -27,6 +28,19 @@ export class Citas implements OnInit {
   especialidades: EspecialidadResponse[] = [];
   medicos: MedicoResponse[] = [];
   servicios: ServicioResponse[] = [];
+  horariosMedico: HorarioResponse[] = [];
+  horasDisponibles: string[] = [];
+
+  diaSemana: string[] = [
+    '',
+    'Lunes',
+    'Martes',
+    'Miércoles',
+    'Jueves',
+    'Viernes',
+    'Sábado',
+    'Domingo',
+  ];
 
   // permite controlar segun su estado de todas las citas
   filtroEstado: string = '';
@@ -59,6 +73,7 @@ export class Citas implements OnInit {
     private pacienteService: PacienteService,
     private especialidadService: EspecialidadService,
     private servicioService: ServicioService,
+    private horarioService: HorarioService,
   ) {}
 
   ngOnInit(): void {
@@ -222,6 +237,12 @@ export class Citas implements OnInit {
       return;
     }
 
+    //verificar que se haya seleccionado una hora si fechaHora no contiene 'T' significa que solo tiene la fecha pero no la hora
+    if (!this.nuevaCita.fechaHora.includes('T')) {
+      this.mostrarMensaje('Selecciona una hora disponible', true);
+      return;
+    }
+
     this.citaService.agendar(this.nuevaCita).subscribe({
       next: (data) => {
         // esto agrega una nueva cita al inicio de la cita
@@ -283,6 +304,83 @@ export class Citas implements OnInit {
         this.mostrarMensaje(err.error?.mensaje || 'Error', true);
       },
     });
+  }
+
+  // se cargara automaticamente cuando se modifique la disponibilidad del medico
+  onMedicoChange(): void {
+    if (this.nuevaCita.idMedico === 0) {
+      this.horariosMedico = [];
+      this.horasDisponibles = [];
+      return;
+    }
+    this.horarioService.obtenerPorMedico(this.nuevaCita.idMedico).subscribe({
+      next: (data) => {
+        //  solo mostrara horarios activos
+        this.horariosMedico = data.filter((h) => h.activo);
+      },
+    });
+  }
+
+  // genera las horas disponibles segun el horario del medico
+  generarHorasDisponibles(): void {
+    if (!this.nuevaCita.fechaHora || this.horariosMedico.length === 0) {
+      return;
+    }
+
+    const partesFecha = this.nuevaCita.fechaHora.split('T')[0].split('-');
+    const año = parseInt(partesFecha[0]);
+    const mes = parseInt(partesFecha[1]) - 1; 
+    const dia = parseInt(partesFecha[2]);
+
+    // obtiene del dia seleccionada
+    const fecha = new Date(año, mes, dia);
+    let diaSemana = fecha.getDay();
+    diaSemana = diaSemana === 0 ? 7 : diaSemana;
+
+    console.log('día calculado correctamente:', diaSemana);
+
+    // permite buscar el horario del medico para el dia
+    const horarioDelDia = this.horariosMedico.find((h) => h.diaSemana === diaSemana);
+    if (!horarioDelDia) {
+      this.horasDisponibles = [];
+      this.mostrarMensaje(
+        `El medico no trabaja ese dia. Trabaja: ${this.horariosMedico.map((h) => this.diaSemana[h.diaSemana]).join(', ')}`,
+        true,
+      );
+      return;
+    }
+
+    // generar slots de tiempo cada 30 min
+    const horas: string[] = [];
+    const [horaIni, minIni] = horarioDelDia.horaInicio.split(':').map(Number);
+    const [horaFin, minFin] = horarioDelDia.horaFin.split(':').map(Number);
+
+    let hora = horaIni;
+    let min = minIni;
+
+    while (hora < horaFin || (hora === horaFin && min < minFin)) {
+      horas.push(`${hora.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`);
+      min += 30;
+      if (min >= 60) {
+        min = 0;
+        hora++;
+      }
+    }
+    this.horasDisponibles = horas;
+  }
+
+  // con esto se verificara si el medico esta disponible ese dia cuando el paciente seleccione una fecha
+  onFechaChange(): void {
+    // limpia la hora seleccionada cuando cambia la fecha para que el usuario tenga que elegir hora de nuevo
+    const fecha = this.nuevaCita.fechaHora;
+    this.nuevaCita.fechaHora = fecha;
+    this.generarHorasDisponibles();
+  }
+
+  onHoraChange(hora: string): void {
+    if (!this.nuevaCita.fechaHora) return;
+    const fecha = this.nuevaCita.fechaHora.split('T')[0];
+    this.nuevaCita.fechaHora = `${fecha}T${hora}:00`;
   }
 
   // método privado para actualizar una cita en la lista local
