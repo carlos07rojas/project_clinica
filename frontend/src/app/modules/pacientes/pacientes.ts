@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PacienteService } from '../../core/services/paciente.service';
 import { UsuarioService } from '../../core/services/usuario.service';
+import { NotificacionService } from '../../core/services/notificacion.service';
 import { PacienteRequest, PacienteResponse } from '../../shared/models/paciente.model';
 import { UsuarioResponse } from '../../shared/models/usuario.model';
 
@@ -57,6 +58,7 @@ export class Pacientes implements OnInit {
   constructor(
     private pacienteService: PacienteService,
     private usuarioService: UsuarioService,
+    private notificacionService: NotificacionService,
   ) {}
 
   ngOnInit(): void {
@@ -214,8 +216,10 @@ export class Pacientes implements OnInit {
   }
 
   private mostrarMensaje(texto: string, esError: boolean): void {
-    this.mensaje = texto;
-    this.esError = esError;
-    setTimeout(() => (this.mensaje = ''), 4000);
+    if (esError) {
+      this.notificacionService.error(texto);
+    } else {
+      this.notificacionService.exito(texto)
+    }
   }
 }

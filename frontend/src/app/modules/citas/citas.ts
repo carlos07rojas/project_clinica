@@ -5,6 +5,7 @@ import { CitaService } from '../../core/services/cita.service';
 import { MedicoService } from '../../core/services/medico.service';
 import { PacienteService } from '../../core/services/paciente.service';
 import { EspecialidadService } from '../../core/services/especialidad.service';
+import { NotificacionService } from '../../core/services/notificacion.service';
 import { ServicioService, ServicioResponse } from '../../core/services/servicio.service';
 import { HorarioService, HorarioResponse } from '../../core/services/horario.service';
 import { CitaRequest, CitaResponse } from '../../shared/models/cita.model';
@@ -74,6 +75,7 @@ export class Citas implements OnInit {
     private especialidadService: EspecialidadService,
     private servicioService: ServicioService,
     private horarioService: HorarioService,
+    private notificacionService: NotificacionService,
   ) {}
 
   ngOnInit(): void {
@@ -329,7 +331,7 @@ export class Citas implements OnInit {
 
     const partesFecha = this.nuevaCita.fechaHora.split('T')[0].split('-');
     const año = parseInt(partesFecha[0]);
-    const mes = parseInt(partesFecha[1]) - 1; 
+    const mes = parseInt(partesFecha[1]) - 1;
     const dia = parseInt(partesFecha[2]);
 
     // obtiene del dia seleccionada
@@ -392,8 +394,10 @@ export class Citas implements OnInit {
   }
 
   private mostrarMensaje(texto: string, esError: boolean): void {
-    this.mensaje = texto;
-    this.esError = esError;
-    setTimeout(() => (this.mensaje = ''), 4000);
+    if (esError) {
+      this.notificacionService.error(texto);
+    } else {
+      this.notificacionService.exito(texto);
+    }
   }
 }

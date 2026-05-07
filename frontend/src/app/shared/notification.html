@@ -1,0 +1,16 @@
+<div class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999]
+            flex flex-col gap-2">
+  @for (n of notificacion; track n.id) {
+    @if (n.tipo === 'error') {
+      <div class="bg-red-500 text-white px-6 py-3 rounded-xl 
+                  shadow-xl min-w-64 text-center">
+        <p class="text-sm font-medium">{{ n.mensaje }}</p>
+      </div>
+    } @else {
+      <div class="bg-green-500 text-white px-6 py-3 rounded-xl 
+                  shadow-xl min-w-64 text-center">
+        <p class="text-sm font-medium">{{ n.mensaje }}</p>
+      </div>
+    }
+  }
+</div>

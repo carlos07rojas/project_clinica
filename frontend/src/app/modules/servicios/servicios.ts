@@ -6,6 +6,7 @@ import {
   ServicioRequest,
   ServicioResponse,
 } from '../../core/services/servicio.service';
+import { NotificacionService } from '../../core/services/notificacion.service';
 import { EspecialidadService } from '../../core/services/especialidad.service';
 import { EspecialidadResponse } from '../../shared/models/especialidad.model';
 
@@ -35,6 +36,7 @@ export class Servicios implements OnInit {
   constructor(
     private servicioService: ServicioService,
     private especialidadService: EspecialidadService,
+    private notificacionService: NotificacionService,
   ) {}
 
   ngOnInit(): void {
@@ -121,8 +123,10 @@ export class Servicios implements OnInit {
   }
 
   private mostrarMensaje(texto: string, esError: boolean): void {
-    this.mensaje = texto;
-    this.esError = esError;
-    setTimeout(() => (this.mensaje = ''), 3000);
+    if (esError) {
+      this.notificacionService.error(texto);
+    } else {
+      this.notificacionService.exito(texto);
+    }
   }
 }

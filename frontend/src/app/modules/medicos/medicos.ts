@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MedicoService } from '../../core/services/medico.service';
 import { EspecialidadService } from '../../core/services/especialidad.service';
 import { UsuarioService } from '../../core/services/usuario.service';
+import { NotificacionService } from '../../core/services/notificacion.service';
 import { MedicoRequest, MedicoResponse } from '../../shared/models/medico.model';
 import { EspecialidadResponse } from '../../shared/models/especialidad.model';
 import { UsuarioResponse } from '../../shared/models/usuario.model';
@@ -52,6 +53,7 @@ export class Medicos implements OnInit {
     private medicoService: MedicoService,
     private especialidadService: EspecialidadService,
     private usuarioService: UsuarioService,
+    private notificacionService: NotificacionService
   ) {}
 
   ngOnInit(): void {
@@ -165,8 +167,10 @@ export class Medicos implements OnInit {
   }
 
   private mostrarMensaje(texto: string, esError: boolean): void {
-    this.mensaje = texto;
-    this.esError = esError;
-    setTimeout(() => (this.mensaje = ''), 4000);
+    if (esError) {
+      this.notificacionService.error(texto);
+    } else {
+      this.notificacionService.exito(texto)
+    }
   }
 }

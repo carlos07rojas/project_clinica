@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIconsModule } from '@ng-icons/core';
+import { Notification } from './shared/notification';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgIconsModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgIconsModule, Notification],
   templateUrl: './layout.html',
   styleUrl: './layout.css',
 })
