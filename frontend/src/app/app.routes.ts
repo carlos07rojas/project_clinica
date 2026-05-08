@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout';
 import { Especialidades } from './modules/especialidades/especialidades';
 import { Medicos } from './modules/medicos/medicos';
+import { Horarios } from './modules/horarios/horarios';
 import { Pacientes } from './modules/pacientes/pacientes';
 import { Citas } from './modules/citas/citas';
 import { Historial } from './modules/historial/historial';
@@ -21,6 +22,7 @@ export const routes: Routes = [
       { path: 'historial', component: Historial },
       { path: 'pagos', component: Pagos },
       { path: 'servicios', component: Servicios },
+      { path: 'horarios', component: Horarios },
     ],
   },
 ];

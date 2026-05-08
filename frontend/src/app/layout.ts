@@ -14,6 +14,7 @@ export class LayoutComponent {
   menuItems = [
     { ruta: '/especialidades', label: 'Especialidades', icono: 'heroBeaker' },
     { ruta: '/medicos', label: 'Médicos', icono: 'heroUserGroup' },
+    { ruta: '/horarios', label: 'Horarios', icono: 'heroClock' },
     { ruta: '/pacientes', label: 'Pacientes', icono: 'heroUser' },
     { ruta: '/servicios', label: 'Servicios', icono: 'heroCurrencyDollar' },
     { ruta: '/citas', label: 'Citas', icono: 'heroCalendarDays' },

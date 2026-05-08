@@ -11,7 +11,8 @@ import {
   heroClipboardDocument,
   heroCreditCard,
   heroBuildingOffice2,
-  heroCurrencyDollar 
+  heroCurrencyDollar,
+  heroClock
 } from '@ng-icons/heroicons/outline';
 
 export const appConfig: ApplicationConfig = {
@@ -28,7 +29,8 @@ export const appConfig: ApplicationConfig = {
       heroClipboardDocument,
       heroCreditCard,
       heroBuildingOffice2,
-      heroCurrencyDollar
+      heroCurrencyDollar,
+      heroClock
     })
   ]
 };
