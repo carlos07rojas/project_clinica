@@ -91,7 +91,7 @@ export class Citas implements OnInit {
       next: (pendientes) => {
         this.citaService.obtenerPorEstado('CONFIRMADA').subscribe({
           next: (confirmadas) => {
-            this.citaService.obtenerPorEstado('COMPLETADa').subscribe({
+            this.citaService.obtenerPorEstado('COMPLETADA').subscribe({
               next: (completadas) => {
                 this.citaService.obtenerPorEstado('CANCELADA').subscribe({
                   next: (canceladas) => {
