@@ -10,6 +10,7 @@ export interface HorarioResponse {
   diaSemana: number;
   horaInicio: string;
   horaFin: string;
+  fechaInicio: string;
   activo: boolean;
 }
 

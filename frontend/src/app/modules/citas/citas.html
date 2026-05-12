@@ -325,7 +325,7 @@
             </option>
             @for (s of servicios; track s.idServicio) {
               <option [value]="s.idServicio">
-                {{ s.nombre }} - S/ {{ s.precio }} ({{ s.duracionMin }} min)
+                {{ s.nombre }} - S/{{ s.precio }} ({{ s.duracionMin }} min)
               </option>
             }
           </select>
@@ -342,15 +342,20 @@
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
           />
           @if (nuevaCita.idMedico !== 0 && horariosMedico.length > 0) {
-            <p class="text-xs text-gray-400 mt-1">
-              El medico trabaja:
+            <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mt-2">
+              <p class="text-xs text-blue-600 font-medium mb-1">Próximas fechas disponibles:</p>
               @for (h of horariosMedico; track h.idHorario) {
-                <span class="font-medium text-blue-600">
-                  {{ diaSemana[h.diaSemana] }}
-                  ({{ h.horaInicio.slice(0, 5) }} - {{ h.horaFin.slice(0, 5) }})
-                </span>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-medium text-blue-700 capitalize">
+                    <!-- proximaFecha() calcula la fecha concreta -->
+                    {{ proximaFecha(h.diaSemana) }}
+                  </span>
+                  <span class="text-blue-500">
+                    {{ h.horaInicio.slice(0, 5) }} - {{ h.horaFin.slice(0, 5) }}
+                  </span>
+                </div>
               }
-            </p>
+            </div>
           }
         </div>
 

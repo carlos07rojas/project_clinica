@@ -339,8 +339,6 @@ export class Citas implements OnInit {
     let diaSemana = fecha.getDay();
     diaSemana = diaSemana === 0 ? 7 : diaSemana;
 
-    console.log('día calculado correctamente:', diaSemana);
-
     // permite buscar el horario del medico para el dia
     const horarioDelDia = this.horariosMedico.find((h) => h.diaSemana === diaSemana);
     if (!horarioDelDia) {
@@ -350,6 +348,25 @@ export class Citas implements OnInit {
         true,
       );
       return;
+    }
+
+    // condicion para que la fecha seleccionada no puede ser anterior a la fecha de inicio del horario
+    if (horarioDelDia.fechaInicio) {
+      const fechaInicioHorario = new Date(horarioDelDia.fechaInicio + 'T00:00:00');
+      if (fecha < fechaInicioHorario) {
+        this.horasDisponibles = [];
+        this.notificacionService.error(
+          `Este horario aplica desde el ${new Date(horarioDelDia.fechaInicio).toLocaleDateString(
+            'es-PE',
+            {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            },
+          )}`,
+        );
+        return;
+      }
     }
 
     // generar slots de tiempo cada 30 min
@@ -383,6 +400,26 @@ export class Citas implements OnInit {
     if (!this.nuevaCita.fechaHora) return;
     const fecha = this.nuevaCita.fechaHora.split('T')[0];
     this.nuevaCita.fechaHora = `${fecha}T${hora}:00`;
+  }
+
+  // esto calculara la proxima fecha concreta para un dia de la semana
+  proximaFecha(diaSemana: number): string {
+    const hoy = new Date();
+    const diaJS = diaSemana === 7 ? 0 : diaSemana;
+    const hoyDiaJS = hoy.getDay();
+
+    // días hasta el próximo día de trabajo
+    let diasHasta = diaJS - hoyDiaJS;
+    if (diasHasta <= 0) diasHasta += 7;
+
+    const proxima = new Date(hoy);
+    proxima.setDate(hoy.getDate() + diasHasta);
+
+    return proxima.toLocaleDateString('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
   }
 
   // método privado para actualizar una cita en la lista local
