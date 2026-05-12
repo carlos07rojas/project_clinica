@@ -7,6 +7,8 @@ import com.projectclinica.backend.model.Medico;
 import com.projectclinica.backend.repository.HorarioCitasRepository;
 import com.projectclinica.backend.repository.MedicoRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,12 +17,12 @@ public class HorarioCitasService {
     private final HorarioCitasRepository horarioCitasRepository;
     private final MedicoRepository medicoRepository;
 
-    public HorarioCitasService(HorarioCitasRepository horarioCitasRepository, 
+    public HorarioCitasService(HorarioCitasRepository horarioCitasRepository,
             MedicoRepository medicoRepository) {
         this.horarioCitasRepository = horarioCitasRepository;
         this.medicoRepository = medicoRepository;
     }
-    
+
     // Crear usuario
     public HorarioCitasResponseDTO crearHorario(HorarioCitasRequestDTO dto) {
         // verificar que el medico exista
@@ -30,7 +32,7 @@ public class HorarioCitasService {
         // verificar los dias de semana que va a ver atencion
         if (dto.getDiaSemana() < 1 || dto.getDiaSemana() > 7) {
             throw new RuntimeException(
-                    "Día de semana inválido. Debe ser entre 1 (lunes) y 7 (sabado)");
+                    "Día de semana inválido. Debe ser entre 1 (Lunes) y 7 (Sabado)");
         }
 
         // verificar la hora de inicio o el horario para evitar datos inconsistentes
@@ -39,12 +41,32 @@ public class HorarioCitasService {
                     "La hora de Fin debe ser mayor a la hora de inicio");
         }
 
-        //  verificar que no exista un horario activo para un medico en el mismo dia
-        List<HorarioCitas> horariosExistentes = horarioCitasRepository
-                .findHorariosActivosPorMedicoYDia(dto.getIdMedico(), dto.getDiaSemana());
-        if (!horariosExistentes.isEmpty()) {
+        // la fecha de inicio no puede ser en el pasado
+        if (dto.getFechaInicio().isBefore(LocalDate.now())) {
             throw new RuntimeException(
-                    "El medico ya tiene un horario activo ese dia");
+                    "La fecha de inicio no puede ser en el pasado");
+        }
+
+        // la fecha debe corresponder al día de semana seleccionado
+        if (dto.getFechaInicio().getDayOfWeek().getValue() != dto.getDiaSemana()) {
+            throw new RuntimeException(
+                    "La fecha seleccionada no corresponde al día de semana indicado");
+        }
+
+        // verificar que no exista un horario activo para un medico en el mismo dia
+        LocalDate fechaFinCalculada = dto.getFechaInicio()
+                .with(java.time.DayOfWeek.SUNDAY);
+
+        List<HorarioCitas> horariosSolapados = horarioCitasRepository
+                .findHorariosSolapados(
+                        dto.getIdMedico(),
+                        dto.getDiaSemana(),
+                        dto.getFechaInicio(),
+                        fechaFinCalculada);
+
+        if (!horariosSolapados.isEmpty()) {
+            throw new RuntimeException(
+                    "El médico ya tiene un horario registrado ese día para esa semana");
         }
 
         HorarioCitas horario = new HorarioCitas();
@@ -52,6 +74,8 @@ public class HorarioCitasService {
         horario.setDiaSemana(dto.getDiaSemana());
         horario.setHoraInicio(dto.getHoraInicio());
         horario.setHorarioFin(dto.getHoraFin());
+        horario.setFechaInicio(dto.getFechaInicio());
+        horario.setFechaFin((fechaFinCalculada));
 
         HorarioCitas guardado = horarioCitasRepository.save(horario);
         return convertirAResponseDTO(guardado);
@@ -66,18 +90,17 @@ public class HorarioCitasService {
     // Desactivar horario | borrado logico
     public HorarioCitasResponseDTO desactivarHorario(Integer id) {
         HorarioCitas horario = horarioCitasRepository.findById(id).orElseThrow(() -> new RuntimeException(
-            "Horario no encontrado con id: " + id
-        ));
+                "Horario no encontrado con id: " + id));
         if (!horario.getActivo()) {
             throw new RuntimeException(
                     "El horario ya esta desactivado");
         }
-        
+
         horario.setActivo(false);
         HorarioCitas actualizado = horarioCitasRepository.save(horario);
         return convertirAResponseDTO(actualizado);
     }
-    
+
     private HorarioCitasResponseDTO convertirAResponseDTO(HorarioCitas h) {
         HorarioCitasResponseDTO dto = new HorarioCitasResponseDTO();
         dto.setIdHorario(h.getIdHorario());
@@ -86,6 +109,8 @@ public class HorarioCitasService {
         dto.setDiaSemana(h.getDiaSemana());
         dto.setHoraInicio(h.getHoraInicio());
         dto.setHoraFin(h.getHorarioFin());
+        dto.setFechaInicio(h.getFechaInicio());
+        dto.setFechaFin(h.getFechaFin());
         dto.setActivo(h.getActivo());
         return dto;
     }

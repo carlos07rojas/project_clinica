@@ -12,6 +12,8 @@ import com.projectclinica.backend.repository.MedicoRepository;
 import com.projectclinica.backend.repository.PacienteRepository;
 import com.projectclinica.backend.repository.ServicioRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 // import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,24 +78,34 @@ public class CitaService {
                     "La cita debe agendarse con al menos 24 horas de anticipacion");
         }
 
-        // el medico debe trabajar ese dia de la semana
+        LocalDate fechaCita = dto.getFechaHora().toLocalDate();
         int diaSemana = dto.getFechaHora().getDayOfWeek().getValue();
-        var horariosDelDia = horarioCitasRepository.findHorariosActivosPorMedicoYDia(dto.getIdMedico(), diaSemana);
+        var horariosDelDia = horarioCitasRepository
+                .findHorariosActivosPorMedicoYDia(dto.getIdMedico(), diaSemana);
+
         if (horariosDelDia.isEmpty()) {
             throw new RuntimeException(
                     "El medico no trabaja ese dia de la semana");
         }
 
-        // la hora de la cita debe estar dentro del rango del horario laboral del medico
-        // en ese dia
-        var horario = horariosDelDia.get(0);
+        // buscar el horario vigente para esa semana específica
+        var horario = horariosDelDia.stream()
+                .filter(h -> !fechaCita.isBefore(h.getFechaInicio()) &&
+                        !fechaCita.isAfter(h.getFechaFin()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(
+                        "No hay horario disponible para esa fecha. " +
+                                "Verifica que el médico tenga horario registrado para esa semana"));
+
+        // la hora de la cita debe estar dentro del horario del medico
         var horaCita = dto.getFechaHora().toLocalTime();
         if (horaCita.isBefore(horario.getHoraInicio()) ||
                 horaCita.isAfter(horario.getHorarioFin())) {
             throw new RuntimeException(
-                    "La hora esta fuera del horario del medico. Trabaja de " + horario.getHoraInicio() + " a "
-                            + horario.getHorarioFin());
+                    "La hora esta fuera del horario del medico. Trabaja de "
+                            + horario.getHoraInicio() + " a " + horario.getHorarioFin());
         }
+
         // el medico no debe tener otra cita en la misma hora
         if (citaRepository.existeCitaEnHorario(dto.getIdMedico(), dto.getFechaHora())) {
             throw new RuntimeException(

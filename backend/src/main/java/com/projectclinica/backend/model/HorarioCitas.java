@@ -9,13 +9,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
 @Entity
 @Table(name = "HORARIO_CITAS")
 public class HorarioCitas {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_horario")
@@ -28,7 +30,15 @@ public class HorarioCitas {
     @Column(name = "dia_semana", nullable = false)
     private Integer diaSemana;
 
-    @Column(name= "hora_inicio", nullable = false)
+    // fecha desde la cual aplica el horario, no puede ser en el pasado
+    @Column(name = "fecha_inicio", nullable = false)
+    private LocalDate fechaInicio;
+
+    // siempre 6 días después de fechaInicio un horario aplica exactamente una semana
+    @Column(name = "fecha_fin", nullable = false)
+    private LocalDate fechaFin;
+
+    @Column(name = "hora_inicio", nullable = false)
     private LocalTime horaInicio;
 
     @Column(name = "hora_fin", nullable = false)
