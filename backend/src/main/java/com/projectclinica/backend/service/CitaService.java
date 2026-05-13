@@ -220,7 +220,7 @@ public class CitaService {
         CitaResponseDTO dto = new CitaResponseDTO();
         dto.setIdCita(c.getIdCita());
         dto.setIdPaciente(c.getPaciente().getIdPaciente());
-        dto.setNombrePaciente(c.getPaciente().getUsuario().getNombre() + " " + c.getMedico().getUsuario().getNombre());
+        dto.setNombrePaciente(c.getPaciente().getUsuario().getNombre() + " " + c.getPaciente().getUsuario().getApellido());
         dto.setIdMedico(c.getMedico().getIdMedico());
         dto.setNombreMedico(c.getMedico().getUsuario().getNombre() + " " + c.getMedico().getUsuario().getApellido());
         dto.setIdServicio(c.getServicio().getIdServicio());
