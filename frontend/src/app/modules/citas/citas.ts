@@ -352,18 +352,31 @@ export class Citas implements OnInit {
 
     // condicion para que la fecha seleccionada no puede ser anterior a la fecha de inicio del horario
     if (horarioDelDia.fechaInicio) {
-      const fechaInicioHorario = new Date(horarioDelDia.fechaInicio + 'T00:00:00');
-      if (fecha < fechaInicioHorario) {
+      const partesInicio = horarioDelDia.fechaInicio.split('-');
+      const fechaInicioHorario = new Date(
+        parseInt(partesInicio[0]),
+        parseInt(partesInicio[1]) - 1,
+        parseInt(partesInicio[2]),
+      );
+
+      const partesFin = horarioDelDia.fechaFin ? horarioDelDia.fechaFin.split('-') : null;
+      const fechaFinHorario = partesFin
+        ? new Date(parseInt(partesFin[0]), parseInt(partesFin[1]) - 1, parseInt(partesFin[2]))
+        : null;
+
+      // verificar que la fecha esté dentro del rango de la semana
+      if (fecha < fechaInicioHorario || (fechaFinHorario && fecha > fechaFinHorario)) {
         this.horasDisponibles = [];
+
+        const opciones: Intl.DateTimeFormatOptions = {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        };
+
         this.notificacionService.error(
-          `Este horario aplica desde el ${new Date(horarioDelDia.fechaInicio).toLocaleDateString(
-            'es-PE',
-            {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            },
-          )}`,
+          `Este horario aplica del ${fechaInicioHorario.toLocaleDateString('es-PE', opciones)} 
+       al ${fechaFinHorario ? fechaFinHorario.toLocaleDateString('es-PE', opciones) : ''}`,
         );
         return;
       }
@@ -386,6 +399,24 @@ export class Citas implements OnInit {
       }
     }
     this.horasDisponibles = horas;
+  }
+
+  // fecha mínima — mañana (mínimo 24 horas de anticipación)
+  obtenerFechaMinima(): string {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    return manana.toISOString().split('T')[0];
+  }
+
+  // fecha máxima — el domingo de la semana del horario así el paciente solo puede elegir dentro de esa semana
+  obtenerFechaMaxima(): string {
+    if (this.horariosMedico.length === 0) return '';
+
+    // tomar el fechaFin del primer horario activo
+    const horario = this.horariosMedico[0];
+    if (!horario.fechaFin) return '';
+
+    return horario.fechaFin;
   }
 
   // con esto se verificara si el medico esta disponible ese dia cuando el paciente seleccione una fecha

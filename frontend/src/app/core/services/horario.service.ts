@@ -11,6 +11,7 @@ export interface HorarioResponse {
   horaInicio: string;
   horaFin: string;
   fechaInicio: string;
+  fechaFin: string;
   activo: boolean;
 }
 

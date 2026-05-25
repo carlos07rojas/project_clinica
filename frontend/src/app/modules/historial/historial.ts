@@ -160,7 +160,19 @@ export class Historial implements OnInit {
   }
 
   formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-PE', {
+    if (!fecha) return 'Sin fecha';
+
+    // corregir el parseo para evitar Invalid Date
+    // algunos formatos de fecha no son reconocidos
+    // correctamente por todos los navegadores
+    const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
+
+    const date = new Date(fechaLimpia);
+
+    // verificar que la fecha es válida antes de formatear
+    if (isNaN(date.getTime())) return 'Fecha inválida';
+
+    return date.toLocaleDateString('es-PE', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -168,7 +180,15 @@ export class Historial implements OnInit {
   }
 
   formatearFechaHora(fecha: string): string {
-    return new Date(fecha).toLocaleTimeString('es-PE', {
+    if (!fecha) return 'Sin fecha';
+
+    const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
+
+    const date = new Date(fechaLimpia);
+
+    if (isNaN(date.getTime())) return 'Fecha inválida';
+
+    return date.toLocaleDateString('es-PE', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
