@@ -162,20 +162,19 @@ export class Historial implements OnInit {
   formatearFecha(fecha: string): string {
     if (!fecha) return 'Sin fecha';
 
-    // corregir el parseo para evitar Invalid Date
-    // algunos formatos de fecha no son reconocidos
-    // correctamente por todos los navegadores
     const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
-
     const date = new Date(fechaLimpia);
 
     // verificar que la fecha es válida antes de formatear
     if (isNaN(date.getTime())) return 'Fecha inválida';
 
     return date.toLocaleDateString('es-PE', {
+      weekday: 'long',
       day: '2-digit',
       month: 'short',
       year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }
 

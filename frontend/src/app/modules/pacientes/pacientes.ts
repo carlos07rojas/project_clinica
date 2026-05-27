@@ -161,6 +161,12 @@ export class Pacientes implements OnInit {
       this.mostrarMensaje('Nombre, Email y contraseña son obligatorios', true);
       return;
     }
+
+    if (this.nuevoUsuarioPaciente.password.length < 8) {
+      this.notificacionService.error('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
     this.usuarioService.crear(this.nuevoUsuarioPaciente).subscribe({
       next: (data) => {
         this.usuarioPaciente.push(data);
@@ -191,6 +197,11 @@ export class Pacientes implements OnInit {
       this.mostrarMensaje('El sexo es obligatorio', true);
       return;
     }
+    // validar que el teléfono sea solo números si fue ingresado
+    if (this.nuevoPaciente.telefono && !/^\d{9}$/.test(this.nuevoPaciente.telefono)) {
+      this.notificacionService.error('El teléfono debe tener exactamente 9 dígitos numéricos');
+      return;
+    }
 
     this.pacienteService.crear(this.nuevoPaciente).subscribe({
       next: (data) => {
@@ -215,11 +226,20 @@ export class Pacientes implements OnInit {
     return edad;
   }
 
+  soloNumeros(event: KeyboardEvent): boolean {
+    const charCode = event.charCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
   private mostrarMensaje(texto: string, esError: boolean): void {
     if (esError) {
       this.notificacionService.error(texto);
     } else {
-      this.notificacionService.exito(texto)
+      this.notificacionService.exito(texto);
     }
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { SolesPipe } from '../../shared/pipes/soles.pipe';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { PacienteService } from '../../core/services/paciente.service';
 import { CitaService } from '../../core/services/cita.service';
@@ -30,7 +31,7 @@ interface PagoRequest {
 @Component({
   selector: 'app-pagos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SolesPipe],
   templateUrl: './pagos.html',
   styleUrl: './pagos.css',
 })

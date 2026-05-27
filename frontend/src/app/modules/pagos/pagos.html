@@ -98,7 +98,7 @@
               </div>
             </td>
             <!-- monto -->
-            <td class="px-6 py-4 font-bold text-gray-800">S/ {{ pago.monto.toFixed(2) }}</td>
+            <td class="px-6 py-4 font-bold text-gray-800">{{ pago.monto | soles }}</td>
 
             <!-- metodo de pago -->
             <td class="px-6 py-4">

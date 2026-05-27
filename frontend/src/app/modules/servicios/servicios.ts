@@ -6,6 +6,7 @@ import {
   ServicioRequest,
   ServicioResponse,
 } from '../../core/services/servicio.service';
+import { SolesPipe } from '../../shared/pipes/soles.pipe';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { EspecialidadService } from '../../core/services/especialidad.service';
 import { EspecialidadResponse } from '../../shared/models/especialidad.model';
@@ -13,7 +14,7 @@ import { EspecialidadResponse } from '../../shared/models/especialidad.model';
 @Component({
   selector: 'app-servicios',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SolesPipe],
   templateUrl: './servicios.html',
   styleUrl: './servicios.css',
 })

@@ -46,7 +46,7 @@
                 {{ srv.nombreEspecialidad }}
               </span>
             </td>
-            <td class="px-6 py-4 font-medium text-gray-800">S/ {{ srv.precio }}</td>
+            <td class="px-6 py-4 font-medium text-gray-800">{{ srv.precio | soles }}</td>
             <td class="px-6 py-4 text-gray-600">{{ srv.duracionMin }} min</td>
             <td class="px-6 py-4">
               @if (srv.activo) {
