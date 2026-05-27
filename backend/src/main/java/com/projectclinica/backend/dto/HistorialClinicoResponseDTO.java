@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class HistorialClinicoResponseDTO {
     private Integer idHistorial;
     private Integer idCita;
-    private LocalDateTime frechaCita;
+    private LocalDateTime fechaCita;
     private String nombrePaciente;
     private String nombreMedico;
     private String nombreServicio;

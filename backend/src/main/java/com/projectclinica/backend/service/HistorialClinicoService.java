@@ -66,7 +66,7 @@ public class HistorialClinicoService {
         HistorialClinicoResponseDTO dto = new HistorialClinicoResponseDTO();
         dto.setIdHistorial(h.getIdHistorial());
         dto.setIdCita(h.getIdHistorial());
-        dto.setFrechaCita(h.getCita().getFechaHora());
+        dto.setFechaCita(h.getCita().getFechaHora());
         dto.setNombrePaciente(h.getCita().getPaciente().getUsuario().getNombre() + " "
                 + h.getCita().getPaciente().getUsuario().getApellido());
         dto.setNombreMedico(h.getCita().getMedico().getUsuario().getNombre() + " "
