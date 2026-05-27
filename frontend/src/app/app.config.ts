@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideIcons } from '@ng-icons/core';
 import { routes } from './app.routes';
+import { heroClock } from '@ng-icons/heroicons/outline';
 import {
   heroBeaker,
   heroUserGroup,
@@ -12,7 +13,12 @@ import {
   heroCreditCard,
   heroBuildingOffice2,
   heroCurrencyDollar,
-  heroClock
+  heroBanknotes,
+  heroArrowsRightLeft,
+  heroCheckCircle,
+  heroXCircle,
+  heroCheckBadge,
+  heroNoSymbol,
 } from '@ng-icons/heroicons/outline';
 
 export const appConfig: ApplicationConfig = {
@@ -20,7 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     // habilita HttpClient en toda la aplicación sin esto ningún servicio puede hacer peticiones HTTP
-    provideHttpClient(), // es como registrar un cliente HTTP global 
+    provideHttpClient(), // es como registrar un cliente HTTP global
     provideIcons({
       heroBeaker,
       heroUserGroup,
@@ -30,7 +36,13 @@ export const appConfig: ApplicationConfig = {
       heroCreditCard,
       heroBuildingOffice2,
       heroCurrencyDollar,
-      heroClock
-    })
-  ]
+      heroClock,
+      heroBanknotes,
+      heroArrowsRightLeft,
+      heroCheckCircle,
+      heroXCircle,
+      heroCheckBadge,
+      heroNoSymbol,
+    }),
+  ],
 };

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIconsModule } from '@ng-icons/core';
 import { EspecialidadService } from '../../core/services/especialidad.service';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { EspecialidadRequest, EspecialidadResponse } from '../../shared/models/especialidad.model';
@@ -13,6 +14,7 @@ import { EspecialidadRequest, EspecialidadResponse } from '../../shared/models/e
     // imports = herramientas que esta pantalla necesita |
     CommonModule,
     FormsModule, // FormsModule = [(ngModel)] para enlazar inputs con variables
+    NgIconsModule,
   ],
   templateUrl: './especialidades.html',
   styleUrl: './especialidades.css',
@@ -124,7 +126,7 @@ export class Especialidades implements OnInit {
     if (esError) {
       this.notificacionService.error(texto);
     } else {
-      this.notificacionService.exito(texto)
+      this.notificacionService.exito(texto);
     }
   }
 }

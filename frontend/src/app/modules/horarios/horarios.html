@@ -75,13 +75,19 @@
             </td>
             <td class="px-6 py-4">
               @if (h.activo) {
-                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium"
-                  >Activo</span
+                <div
+                  class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroCheckCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Activo</span>
+                </div>
               } @else {
-                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium"
-                  >Inactivo</span
+                <div
+                  class="flex items-center gap-1 bg-gray-100 text-gray-500 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroXCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Inactivo</span>
+                </div>
               }
             </td>
             <td class="px-6 py-4">
@@ -157,9 +163,7 @@
               class="flex items-center gap-2 mt-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
             >
               <span class="text-blue-500 text-sm">📅</span>
-              <p class="text-sm text-blue-700">
-                Este horario solo se aplicará por esta semana 
-              </p>
+              <p class="text-sm text-blue-700">Este horario solo se aplicará por esta semana</p>
             </div>
           }
         </div>

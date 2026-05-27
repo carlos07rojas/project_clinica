@@ -2,14 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { SolesPipe } from '../../shared/pipes/soles.pipe';
+import { NgIconsModule } from '@ng-icons/core';
+import { environment } from '../../../environments/environment';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { PacienteService } from '../../core/services/paciente.service';
 import { CitaService } from '../../core/services/cita.service';
 import { PacienteResponse } from '../../shared/models/paciente.model';
 import { CitaResponse } from '../../shared/models/cita.model';
-import { retry } from 'rxjs';
 
 interface PagoResponse {
   idPago: number;
@@ -31,7 +31,7 @@ interface PagoRequest {
 @Component({
   selector: 'app-pagos',
   standalone: true,
-  imports: [CommonModule, FormsModule, SolesPipe],
+  imports: [CommonModule, FormsModule, SolesPipe, NgIconsModule],
   templateUrl: './pagos.html',
   styleUrl: './pagos.css',
 })

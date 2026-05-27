@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIconsModule } from '@ng-icons/core';
 import { CitaService } from '../../core/services/cita.service';
 import { MedicoService } from '../../core/services/medico.service';
 import { PacienteService } from '../../core/services/paciente.service';
@@ -16,7 +17,7 @@ import { EspecialidadResponse } from '../../shared/models/especialidad.model';
 @Component({
   selector: 'app-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIconsModule],
   templateUrl: './citas.html',
   styleUrl: './citas.css',
 })
@@ -435,17 +436,28 @@ export class Citas implements OnInit {
 
   // esto calculara la proxima fecha concreta para un dia de la semana
   proximaFecha(diaSemana: number): string {
+    // si hay horarios cargados usar la fechaInicio real en lugar de calcular desde hoy
+    const horario = this.horariosMedico.find((h) => h.diaSemana === diaSemana);
+
+    if (horario?.fechaInicio) {
+      // usar la fecha real del horario sin desfase UTC
+      const partes = horario.fechaInicio.split('-');
+      const fecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+      return fecha.toLocaleDateString('es-PE', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+    }
+
+    // fallback si no hay fechaInicio
     const hoy = new Date();
     const diaJS = diaSemana === 7 ? 0 : diaSemana;
     const hoyDiaJS = hoy.getDay();
-
-    // días hasta el próximo día de trabajo
     let diasHasta = diaJS - hoyDiaJS;
     if (diasHasta <= 0) diasHasta += 7;
-
     const proxima = new Date(hoy);
     proxima.setDate(hoy.getDate() + diasHasta);
-
     return proxima.toLocaleDateString('es-PE', {
       weekday: 'long',
       day: 'numeric',

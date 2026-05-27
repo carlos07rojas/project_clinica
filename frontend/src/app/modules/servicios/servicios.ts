@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIconsModule } from '@ng-icons/core';
 import {
   ServicioService,
   ServicioRequest,
@@ -14,7 +15,7 @@ import { EspecialidadResponse } from '../../shared/models/especialidad.model';
 @Component({
   selector: 'app-servicios',
   standalone: true,
-  imports: [CommonModule, FormsModule, SolesPipe],
+  imports: [CommonModule, FormsModule, SolesPipe, NgIconsModule],
   templateUrl: './servicios.html',
   styleUrl: './servicios.css',
 })

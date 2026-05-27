@@ -10,7 +10,7 @@
     >
       + Nuevo Servicio
     </button>
-  </div>  
+  </div>
 
   <!-- tabla -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -50,13 +50,19 @@
             <td class="px-6 py-4 text-gray-600">{{ srv.duracionMin }} min</td>
             <td class="px-6 py-4">
               @if (srv.activo) {
-                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium"
-                  >Activo</span
+                <div
+                  class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroCheckCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Activo</span>
+                </div>
               } @else {
-                <span class="bg-green-100 text-gray-500 px-3 py-1 rounded-full text-xs font-medium"
-                  >Inactivo</span
+                <div
+                  class="flex items-center gap-1 bg-gray-100 text-gray-500 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroXCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Inactivo</span>
+                </div>
               }
             </td>
             <td class="px-6 py-4">

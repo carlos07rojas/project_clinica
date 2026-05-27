@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIconsModule } from '@ng-icons/core';
 import { HorarioService, HorarioResponse } from '../../core/services/horario.service';
 import { MedicoService } from '../../core/services/medico.service';
 import { NotificacionService } from '../../core/services/notificacion.service';
@@ -11,7 +12,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-horarios',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIconsModule],
   templateUrl: './horarios.html',
   styleUrl: './horarios.css',
 })

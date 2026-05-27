@@ -13,7 +13,7 @@
     >
       + Nueva Especialidad
     </button>
-  </div>  
+  </div>
   <!-- La tabla donde se vera todas las especialidades -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-200">
     <table class="w-full text-sm">
@@ -43,15 +43,19 @@
             <td class="px-6 py-4">
               <!-- en esta condicion se mostrara en badge verde si esta activo o gris si inactivo -->
               @if (esp.activo) {
-                <span
-                  class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium"
+                <div
+                  class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full w-fit"
                 >
-                  Activo
-                </span>
+                  <ng-icon name="heroCheckCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Activo</span>
+                </div>
               } @else {
-                <span
-                  class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium"
-                ></span>
+                <div
+                  class="flex items-center gap-1 bg-gray-100 text-gray-500 px-2 py-1 rounded-full w-fit"
+                >
+                  <ng-icon name="heroXCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Inactivo</span>
+                </div>
               }
             </td>
             <td class="px-6 py-4">

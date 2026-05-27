@@ -103,31 +103,46 @@
             <!-- metodo de pago -->
             <td class="px-6 py-4">
               @if (pago.metodoPago === 'EFECTIVO') {
-                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium"
-                  >💵 Efectivo</span
-                >
+                <div class="flex items-center gap-2">
+                  <ng-icon name="heroBanknotes" size="16" class="text-green-600"></ng-icon>
+                  <span class="text-xs text-gray-700">Efectivo</span>
+                </div>
+              } @else if (pago.metodoPago === 'TARJETA') {
+                <div class="flex items-center gap-2">
+                  <ng-icon name="heroCreditCard" size="16" class="text-blue-600"></ng-icon>
+                  <span class="text-xs text-gray-700">Tarjeta</span>
+                </div>
               } @else {
-                <span class="bg-purple-50 text-purple-700 px-2 py-1 rounded text-xs font-medium"
-                  >🏦 Transferencia</span
-                >
+                <div class="flex items-center gap-2">
+                  <ng-icon name="heroArrowsRightLeft" size="16" class="text-purple-600"></ng-icon>
+                  <span class="text-xs text-gray-700">Transferencia</span>
+                </div>
               }
             </td>
 
             <!-- estado -->
             <td class="px-6 py-4">
               @if (pago.estadoPago === 'PENDIENTE') {
-                <span
-                  class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium"
-                  >Pendiente</span
+                <div
+                  class="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroClock" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Pendiente</span>
+                </div>
               } @else if (pago.estadoPago === 'PAGADO') {
-                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium"
-                  >Pagado</span
+                <div
+                  class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroCheckCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Pagado</span>
+                </div>
               } @else {
-                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium"
-                  >Anulado</span
+                <div
+                  class="flex items-center gap-1 bg-red-50 text-red-700 px-2 py-1 rounded-full w-fit"
                 >
+                  <ng-icon name="heroXCircle" size="12"></ng-icon>
+                  <span class="text-xs font-medium">Anulado</span>
+                </div>
               }
             </td>
 
@@ -147,6 +162,7 @@
                     Confirmar
                   </button>
                   <button
+                    (click)="anularPago(pago)"
                     class="text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-2 py-1 rounded text-xs transition-colors"
                   >
                     Anular
@@ -238,33 +254,36 @@
               (click)="nuevoPago.metodoPago = 'EFECTIVO'"
               [class]="
                 nuevoPago.metodoPago === 'EFECTIVO'
-                  ? 'bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium text-center'
-                  : 'border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-xs hover:border-blue-400 transition-colors text-center'
+                  ? 'bg-blue-600 text-white px-3 py-3 rounded-xl text-xs font-medium text-center flex flex-col items-center gap-1 border-2 border-blue-600'
+                  : 'border-2 border-gray-200 text-gray-600 px-3 py-3 rounded-xl text-xs hover:border-blue-400 transition-colors text-center flex flex-col items-center gap-1'
               "
             >
-              💵 Efectivo
+              <ng-icon name="heroBanknotes" size="20"></ng-icon>
+              Efectivo
             </button>
             <button
               type="button"
               (click)="nuevoPago.metodoPago = 'TARJETA'"
               [class]="
                 nuevoPago.metodoPago === 'TARJETA'
-                  ? 'bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium text-center'
-                  : 'border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-xs hover:border-blue-400 transition-colors text-center'
+                  ? 'bg-blue-600 text-white px-3 py-3 rounded-xl text-xs font-medium text-center flex flex-col items-center gap-1 border-2 border-blue-600'
+                  : 'border-2 border-gray-200 text-gray-600 px-3 py-3 rounded-xl text-xs hover:border-blue-400 transition-colors text-center flex flex-col items-center gap-1'
               "
             >
-              💳 Tarjeta
+              <ng-icon name="heroCreditCard" size="20"></ng-icon>
+              Tarjeta
             </button>
             <button
               type="button"
               (click)="nuevoPago.metodoPago = 'TRANSFERENCIA'"
               [class]="
                 nuevoPago.metodoPago === 'TRANSFERENCIA'
-                  ? 'bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium text-center'
-                  : 'border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-xs hover:border-blue-400 transition-colors text-center'
+                  ? 'bg-blue-600 text-white px-3 py-3 rounded-xl text-xs font-medium text-center flex flex-col items-center gap-1 border-2 border-blue-600'
+                  : 'border-2 border-gray-200 text-gray-600 px-3 py-3 rounded-xl text-xs hover:border-blue-400 transition-colors text-center flex flex-col items-center gap-1'
               "
             >
-              🏦 Tranfe.
+              <ng-icon name="heroArrowsRightLeft" size="20"></ng-icon>
+              Trasnferencia
             </button>
           </div>
         </div>
