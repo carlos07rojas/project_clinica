@@ -227,21 +227,18 @@ export class Horarios implements OnInit {
       });
   }
 
-  proximaFecha(diaSemana: number): string {
-    const hoy = new Date();
-    const diaJS = diaSemana === 7 ? 0 : diaSemana;
-    const hoyDiaJS = hoy.getDay();
-
-    let diasHasta = diaJS - hoyDiaJS;
-    if (diasHasta <= 0) diasHasta += 7;
-
-    const proxima = new Date(hoy);
-    proxima.setDate(hoy.getDate() + diasHasta);
-
-    return proxima.toLocaleDateString('es-PE', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    });
-  }
+  formatearFechaInicio(fechaInicio: string): string {
+  if (!fechaInicio) return '';
+  const partes = fechaInicio.split('-');
+  const fecha = new Date(
+    parseInt(partes[0]),
+    parseInt(partes[1]) - 1,
+    parseInt(partes[2])
+  );
+  return fecha.toLocaleDateString('es-PE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+}
 }

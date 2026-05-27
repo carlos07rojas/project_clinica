@@ -162,6 +162,10 @@ export class Medicos implements OnInit {
       this.notificacionService.error('El teléfono debe tener exactamente 9 dígitos numéricos');
       return;
     }
+    if (this.nuevoMedico.codigoColegiatura.length > 10) {
+      this.notificacionService.error('El código de colegiatura no puede exceder 10 caracteres');
+      return;
+    }
 
     this.medicoService.crear(this.nuevoMedico).subscribe({
       next: (data) => {

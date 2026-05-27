@@ -110,13 +110,46 @@ export class Pagos implements OnInit {
       metodoPago: '',
     };
     this.citaSelecc = null;
+    this.citasCompleSinPago = [];
 
-    // esto permitira cargar todas las citas completadas sin tener un pago registrado
-    this.http.get<CitaResponse[]>(`${environment.apiUrl}/citas?estado=COMPLETA`).subscribe({
-      next: (todasComple) => {
-        // filtra las que ya tienen pago, verificando cuales tienen pago en la lista
-        const idsCitasConPago = this.pagos.map((p) => p.idCita);
-        this.citasCompleSinPago = todasComple.filter((c) => !idsCitasConPago.includes(c.idCita));
+    // primero obtener todas las citas completadas
+    this.http.get<CitaResponse[]>(`${environment.apiUrl}/citas?estado=COMPLETADA`).subscribe({
+      next: (citasCompletadas) => {
+        if (citasCompletadas.length === 0) {
+          this.notificacionService.error('No hay citas completadas en el sistema');
+          return;
+        }
+
+        // luego obtener todos los pagos existentes para filtrar las citas que ya tienen pago
+        this.http
+          .get<PagoResponse[]>(`${environment.apiUrl}/pagos?estadoPago=PENDIENTE`)
+          .subscribe({
+            next: (pagosPendientes) => {
+              this.http
+                .get<PagoResponse[]>(`${environment.apiUrl}/pagos?estadoPago=PAGADO`)
+                .subscribe({
+                  next: (pagosPagados) => {
+                    // combinar todos los pagos existentes
+                    const todosPagos = [...pagosPendientes, ...pagosPagados];
+                    const idsCitasConPago = todosPagos.map((p) => p.idCita);
+
+                    // mostrar solo citas sin pago registrado
+                    this.citasCompleSinPago = citasCompletadas.filter(
+                      (c) => !idsCitasConPago.includes(c.idCita),
+                    );
+
+                    if (this.citasCompleSinPago.length === 0) {
+                      this.notificacionService.error(
+                        'Todas las citas completadas ya tienen pago registrado',
+                      );
+                    }
+                  },
+                });
+            },
+          });
+      },
+      error: () => {
+        this.notificacionService.error('Error al cargar citas completadas');
       },
     });
   }
@@ -140,7 +173,7 @@ export class Pagos implements OnInit {
       this.notificacionService.error('Selecciona un metodo de pago');
       return;
     }
-    this.http.post<PagoResponse>(`${environment.apiUrl}pagos`, this.nuevoPago).subscribe({
+    this.http.post<PagoResponse>(`${environment.apiUrl}/pagos`, this.nuevoPago).subscribe({
       next: (data) => {
         this.pagos.unshift(data);
         this.cerrarModal();
