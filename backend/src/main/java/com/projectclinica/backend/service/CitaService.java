@@ -11,13 +11,12 @@ import com.projectclinica.backend.repository.HorarioCitasRepository;
 import com.projectclinica.backend.repository.MedicoRepository;
 import com.projectclinica.backend.repository.PacienteRepository;
 import com.projectclinica.backend.repository.ServicioRepository;
+import com.projectclinica.backend.repository.MedicoEspecialidadRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-// import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
-// import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,17 +26,20 @@ public class CitaService {
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
     private final ServicioRepository servicioRepository;
+    private final MedicoEspecialidadRepository medicoEspecialidadRepository;
 
     public CitaService(CitaRepository citaRepository,
             HorarioCitasRepository horarioCitasRepository,
             MedicoRepository medicoRepository,
             PacienteRepository pacienteRepository,
-            ServicioRepository servicioRepository) {
+            ServicioRepository servicioRepository,
+            MedicoEspecialidadRepository medicoEspecialidadRepository) {
         this.citaRepository = citaRepository;
         this.horarioCitasRepository = horarioCitasRepository;
         this.medicoRepository = medicoRepository;
         this.pacienteRepository = pacienteRepository;
         this.servicioRepository = servicioRepository;
+        this.medicoEspecialidadRepository = medicoEspecialidadRepository;
     }
 
     // agrega citas
@@ -64,11 +66,13 @@ public class CitaService {
                     "El servicio no esta activo");
         }
 
-        // // el servicio debe pertenecer a una especialidad de un medico
-        // if (!servicio.getEspecialidad().getIdEspecialidad().equals(medico.getEspecialidad().getIdEspecialidad())) {
-        //     throw new RuntimeException(
-        //             "El servicio no corresponde al servicio del medico");
-        // }
+        // verifica que el servicio pertenezca a alguna de las especialidades activas
+        boolean servicioCorresponde = medicoEspecialidadRepository.findActivasByMedico(medico.getIdMedico()).stream()
+                        .anyMatch(me -> me.getEspecialidad().getIdEspecialidad()
+                                        .equals(servicio.getEspecialidad().getIdEspecialidad()));
+        if (!servicioCorresponde) {
+                throw new RuntimeException("El servicio no corresponde a ninguna especialidad del medico");
+        }
 
         // la cita debe agendarse con 24 horas de anticipacion
         LocalDateTime ahora = LocalDateTime.now();
