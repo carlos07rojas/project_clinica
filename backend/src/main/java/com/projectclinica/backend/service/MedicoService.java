@@ -1,13 +1,17 @@
 package com.projectclinica.backend.service;
 
+import com.projectclinica.backend.dto.EspecialidadResponseDTO;
+import com.projectclinica.backend.dto.MedicoEditarDTO;
 import com.projectclinica.backend.dto.MedicoRequestDTO;
 import com.projectclinica.backend.dto.MedicoResponseDTO;
 import com.projectclinica.backend.model.Especialidad;
 import com.projectclinica.backend.model.Medico;
+import com.projectclinica.backend.model.MedicoEspecialidad;
 import com.projectclinica.backend.model.Usuario;
 import com.projectclinica.backend.repository.EspecialidadRepository;
 import com.projectclinica.backend.repository.MedicoRepository;
 import com.projectclinica.backend.repository.UsuarioRepository;
+import com.projectclinica.backend.repository.MedicoEspecialidadRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,12 +20,15 @@ import java.util.stream.Collectors;
 public class MedicoService {
     private final MedicoRepository medicoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final MedicoEspecialidadRepository medicoEspecialidadRepository;
     private final EspecialidadRepository especialidadRepository;
 
     public MedicoService(MedicoRepository medicoRepository, UsuarioRepository usuarioRepository,
+            MedicoEspecialidadRepository medicoEspecialidadRepository,
             EspecialidadRepository especialidadRepository) {
         this.medicoRepository = medicoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.medicoEspecialidadRepository = medicoEspecialidadRepository;
         this.especialidadRepository = especialidadRepository;
     }
 
@@ -30,6 +37,7 @@ public class MedicoService {
         // para esto este usuario debe tener el rol de medico
         Usuario usuario = usuarioRepository.findById(dto.getIdUsuario()).orElseThrow(() -> new RuntimeException(
                 "No existe un usuario con este id: " + dto.getIdUsuario()));
+
         if (!usuario.getRol().equals("MEDICO")) {
             throw new RuntimeException(
                     "El usuario no tiene rol MEDICO");
@@ -44,37 +52,55 @@ public class MedicoService {
         // codigo de colegiatura unico
         if (medicoRepository.existsByCodigoColegiatura(dto.getCodigoColegiatura())) {
             throw new RuntimeException(
-                    "Ya existe  un Medico con el codigo: " + dto.getCodigoColegiatura());
+                    "Ya exio con el cste  un Medicodigo: " + dto.getCodigoColegiatura());
         }
 
-        //  verificar que una especialidad debe esxister y estar activa
-        Especialidad especialidad = especialidadRepository.findById(dto.getIdEspecialidad())
-                .orElseThrow(() -> new RuntimeException(
-                        "No existe la especialidad con id: " + dto.getIdEspecialidad()));
-        if (!especialidad.getActivo()) {
-            throw new RuntimeException(
-                    "La especialidad esta desactivada");
-        }
+        // verificar que una especialidad debe esxister y estar activa
+        // Especialidad especialidad =
+        // especialidadRepository.findById(dto.getIdEspecialidad())
+        // .orElseThrow(() -> new RuntimeException(
+        // "No existe la especialidad con id: " + dto.getIdEspecialidad()));
+        // if (!especialidad.getActivo()) {
+        // throw new RuntimeException(
+        // "La especialidad esta desactivada");
+        // }
 
         Medico medico = new Medico();
         medico.setUsuario(usuario);
         medico.setCodigoColegiatura(dto.getCodigoColegiatura());
-        medico.setEspecialidad(especialidad);
         medico.setTelefono(dto.getTelefono());
 
-        Medico guardad = medicoRepository.save(medico);
-        return convertirAResponseDTO(guardad);
+        Medico guardado = medicoRepository.save(medico);
+
+        // con esto se asginara especialidades desde la lista
+        if (dto.getIdEspecialidad() != null) {
+            for (Integer idEsp : dto.getIdEspecialidad()) {
+                Especialidad esp = especialidadRepository.findById(idEsp)
+                        .orElseThrow(() -> new RuntimeException("Especialidad no encontrada" + idEsp));
+                MedicoEspecialidad me = new MedicoEspecialidad();
+                me.setMedico(guardado);
+                me.setEspecialidad(esp);
+                medicoEspecialidadRepository.save(me);
+            }
+        }
+
+        return convertirAResponseDTO(guardado);
     }
-    
+
+    // editar telefono del medico
+    public MedicoResponseDTO editarMedico(Integer id, MedicoEditarDTO dto) {
+        Medico medico = medicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medico no encontrado con id: " + id));
+        if (dto.getTelefono() != null) {
+            medico.setTelefono(dto.getTelefono());
+        }
+
+        return convertirAResponseDTO(medicoRepository.save(medico));
+    }
+
     // Obtener medico
     public List<MedicoResponseDTO> obtenerTodos() {
         return medicoRepository.findAll().stream().map(this::convertirAResponseDTO).collect(Collectors.toList());
-    }
-    
-    // Obtener medico por especialidad
-    public List<MedicoResponseDTO> obtenerPorEspecialidad(Integer idEspecialidad) {
-        return medicoRepository.findByEspecialidadId(idEspecialidad).stream().map(this::convertirAResponseDTO)
-                .collect(Collectors.toList());
     }
 
     private MedicoResponseDTO convertirAResponseDTO(Medico m) {
@@ -85,9 +111,17 @@ public class MedicoService {
         dto.setEmail(m.getUsuario().getEmail());
         dto.setCodigoColegiatura(m.getCodigoColegiatura());
         dto.setTelefono(m.getTelefono());
-        // se incluye el nombre de la especialidad directamente para que el frontend no tenga que hacer otra consulta
-        dto.setIdEspecialidad(m.getEspecialidad().getIdEspecialidad());
-        dto.setNombreEspecialidad(m.getEspecialidad().getNombre());
+
+        // Obtener especialidades activas de la tabla intermedia
+        List<EspecialidadResponseDTO> especialidades = medicoEspecialidadRepository.findActivasByMedico(m.getIdMedico())
+                .stream().map(me -> {
+                    EspecialidadResponseDTO esp = new EspecialidadResponseDTO();
+                    esp.setIdEspecialidad(me.getEspecialidad().getIdEspecialidad());
+                    esp.setNombre(me.getEspecialidad().getNombre());
+                    esp.setActivo(me.getEspecialidad().getActivo());
+                    return esp;
+                }).collect(java.util.stream.Collectors.toList());
+        dto.setIdEspecialidades(especialidades);
         return dto;
     }
 }

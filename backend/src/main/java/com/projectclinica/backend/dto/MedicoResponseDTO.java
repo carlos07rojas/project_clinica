@@ -1,5 +1,7 @@
 package com.projectclinica.backend.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -10,6 +12,5 @@ public class MedicoResponseDTO {
     private String email;
     private String codigoColegiatura;
     private String telefono;
-    private Integer idEspecialidad;
-    private String nombreEspecialidad;
+    private List<EspecialidadResponseDTO> idEspecialidades;
 }

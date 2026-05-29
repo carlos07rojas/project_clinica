@@ -64,11 +64,11 @@ public class CitaService {
                     "El servicio no esta activo");
         }
 
-        // el servicio debe pertenecer a una especialidad de un medico
-        if (!servicio.getEspecialidad().getIdEspecialidad().equals(medico.getEspecialidad().getIdEspecialidad())) {
-            throw new RuntimeException(
-                    "El servicio no corresponde al servicio del medico");
-        }
+        // // el servicio debe pertenecer a una especialidad de un medico
+        // if (!servicio.getEspecialidad().getIdEspecialidad().equals(medico.getEspecialidad().getIdEspecialidad())) {
+        //     throw new RuntimeException(
+        //             "El servicio no corresponde al servicio del medico");
+        // }
 
         // la cita debe agendarse con 24 horas de anticipacion
         LocalDateTime ahora = LocalDateTime.now();
