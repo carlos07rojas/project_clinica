@@ -213,7 +213,7 @@ export class Medicos implements OnInit {
     this.medicoSelecc = null;
   }
 
-  guardadEdicion(): void {
+  guardarEdicion(): void {
     if (!this.medicoSelecc) return;
 
     this.medicoService
@@ -232,18 +232,63 @@ export class Medicos implements OnInit {
   }
 
   // abrir modal para gestionar espeicialidades del medico
-  abrirModalEspeciads(medico: MedicoResponse): void {
+  abrirModalEspeciades(medico: MedicoResponse): void {
     this.medicoSelecc = medico;
     this.mostrarModalEspecialidades = true;
     this.especialidadAgregar = 0;
 
-    // cargar especialidades activar nos asignada
+    // cargar especialidades, activar nos asignada
     this.especialidadService.obtenerActivas().subscribe({
       next: (todas) => {
         const idsAsignadas = medico.especialidades.map((e) => e.idEspecialidad);
         this.especialidadesDispo = todas.filter((e) => !idsAsignadas.includes(e.idEspecialidad));
       },
     });
+  }
+
+  cerrarModalEspecia(): void {
+    this.mostrarModalEspecialidades = false;
+    this.medicoSelecc = null;
+  }
+
+  agregarEspecia(): void {
+    if (!this.medicoSelecc || this.especialidadAgregar === 0) {
+      this.notificacionService.error('Selecciona una especialidad');
+      return;
+    }
+
+    this.http
+      .post<any>(`${environment.apiUrl}/medico-especialidad`, {
+        idMedico: this.medicoSelecc.idMedico,
+        idEspecialidad: this.especialidadAgregar,
+      })
+      .subscribe({
+        next: () => {
+          // se recargara medicos para ver la especialidad nueva
+          this.cargarMedicos();
+          this.cerrarModalEspecia();
+          this.notificacionService.exito('Especialidad agregada');
+        },
+        error: (err) => {
+          this.notificacionService.error(err.error?.mensaje || 'Error al agregar especialidad');
+        },
+      });
+  }
+
+  quitarEspecia(idRelacion: number): void {
+    if (!confirm('¿Quitar esta especialidad del medico?')) return;
+
+    this.http
+      .patch(`${environment.apiUrl}/medico-especialidad/${idRelacion}/desactivar`, {})
+      .subscribe({
+        next: () => {
+          this.cargarMedicos();
+          this.notificacionService.exito('Especialidad removida');
+        },
+        error: (err) => {
+          this.notificacionService.error(err.error?.mensaje || 'Error al quitar especialdiad');
+        },
+      });
   }
 
   soloNumeros(event: KeyboardEvent): boolean {
