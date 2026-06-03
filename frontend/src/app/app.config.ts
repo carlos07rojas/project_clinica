@@ -19,6 +19,8 @@ import {
   heroXCircle,
   heroCheckBadge,
   heroNoSymbol,
+  heroPencilSquare,
+  heroAcademicCap,
 } from '@ng-icons/heroicons/outline';
 
 export const appConfig: ApplicationConfig = {
@@ -43,6 +45,8 @@ export const appConfig: ApplicationConfig = {
       heroXCircle,
       heroCheckBadge,
       heroNoSymbol,
+      heroPencilSquare,
+      heroAcademicCap,
     }),
   ],
 };

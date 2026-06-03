@@ -232,7 +232,7 @@ export class Medicos implements OnInit {
   }
 
   // abrir modal para gestionar espeicialidades del medico
-  abrirModalEspeciades(medico: MedicoResponse): void {
+  abrirModalEspecialidades(medico: MedicoResponse): void {
     this.medicoSelecc = medico;
     this.mostrarModalEspecialidades = true;
     this.especialidadAgregar = 0;
@@ -300,11 +300,11 @@ export class Medicos implements OnInit {
     return true;
   }
 
-  private mostrarMensaje(texto: string, esError: boolean): void {
-    if (esError) {
-      this.notificacionService.error(texto);
-    } else {
-      this.notificacionService.exito(texto);
-    }
-  }
+  // private mostrarMensaje(texto: string, esError: boolean): void {
+  //   if (esError) {
+  //     this.notificacionService.error(texto);
+  //   } else {
+  //     this.notificacionService.exito(texto);
+  //   }
+  // }
 }

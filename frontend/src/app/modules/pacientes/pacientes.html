@@ -96,6 +96,7 @@
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Sexo</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Telefono</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Email</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -114,6 +115,15 @@
                   {{ pac.nombre.charAt(0) }}{{ pac.apellido.charAt(0) }}
                 </div>
                 <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}</p>
+                <td class="px-6 py-4">
+                  <button
+                    (click)="abrirModalEditar(pac)"
+                    class="text-gray-400 hover:text-blue-600 transition-colors"
+                    title="Editar datos"
+                  >
+                    <ng-icon name="heroPencilSquare" size="18"></ng-icon>
+                  </button>
+                </td>
               </div>
             </td>
             <td class="px-6 py-4 font mono text-xs text-gray-600">
@@ -154,6 +164,7 @@
             </td>
           </tr>
         }
+        
       </tbody>
     </table>
   </div>
@@ -310,7 +321,7 @@
             [(ngModel)]="nuevoUsuarioPaciente.password"
             minlength="8"
             maxlength="20"
-            placeholder="Mínimo 8 caracteres"
+            
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -327,6 +338,66 @@
           class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
         >
           Crear Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+}
+<!-- modal para editar pacientes -->
+@if (mostrarModalEditar && pacienteSelecc) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Editar Paciente</h2>
+          <p class="text-xs text-gray-500">
+            {{ pacienteSelecc.nombre }}
+            {{ pacienteSelecc.apellido }}
+          </p>
+        </div>
+        <button
+          (click)="cerrarModalEditar()"
+          class="text-gray-400 hover:text-gray-600 text-xl font-bold"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="px-6 py-4 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+          <input
+            type="text"
+            [(ngModel)]="telefonoEditar"
+            placeholder="Ej: 912345678"
+            maxlength="9"
+            (keypress)="soloNumeros($event)"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <input
+            type="text"
+            [(ngModel)]="direccionEditar"
+            placeholder="Ej: Av. Lima 123"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+        <button
+          (click)="cerrarModalEditar()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="guardarEdicion()"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+        >
+          Guardar
         </button>
       </div>
     </div>

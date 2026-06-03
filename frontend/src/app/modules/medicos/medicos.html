@@ -1,15 +1,15 @@
 <div class="p-6">
-  <!-- emcabezado -->
+  <!-- encabezado -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2x1 font-bold text-gray-800">Médico</h1>
-      <p class="text-sm text-gray-500 mt-1">Gestiona el persona medico de la clinica</p>
+      <h1 class="text-2xl font-bold text-gray-800">Médicos</h1>
+      <p class="text-sm text-gray-500 mt-1">Gestiona el personal médico de la clínica</p>
     </div>
     <button
       (click)="abrirModal()"
-      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded lg-text-sm font-medium transition-colors"
+      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
     >
-      + Nuevo Medico
+      + Nuevo Médico
     </button>
   </div>
 
@@ -19,53 +19,84 @@
       <thead>
         <tr class="border-b border-gray-200">
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Médico</th>
-          <th class="text-left px-6 py-4 text-gray-500 font-medium">Especialidad</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Especialidades</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Colegiatura</th>
-          <th class="text-left px-6 py-4 text-gray-500 font-medium">Telefono</th>
-          <th class="text-left px-6 py-4 text-gray-500 font-medium">Email</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Teléfono</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        @if (cargando) {
-          <tr>
-            <td colspan="5" class="text-center py-10 text-gray-400">Cargando...</td>
-          </tr>
-        }
         @for (medico of medicos; track medico.idMedico) {
           <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <!-- avatar con iniciales -->
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-8 h-8 rounded-full bg-blue-100 texte-blue-700 flex items-center justify-center text-xs font-bold"
+                  class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold flex-shrink-0"
                 >
-                  {{ medico.nombre.charAt(0) }}{{ medico.apellido.charAt(0) }}
+                  {{ medico.nombre.charAt(0) }}
+                  {{ medico.apellido.charAt(0) }}
                 </div>
                 <div>
                   <p class="font-medium text-gray-800">
                     Dr. {{ medico.nombre }} {{ medico.apellido }}
                   </p>
+                  <p class="text-xs text-gray-400">
+                    {{ medico.email }}
+                  </p>
                 </div>
               </div>
             </td>
+
+            <!-- lista de especialidades como badges -->
             <td class="px-6 py-4">
-              <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
-                {{ medico.nombreEspecialidad }}
-              </span>
+              <div class="flex flex-wrap gap-1">
+                @for (esp of medico.especialidades; track esp.idEspecialidad) {
+                  <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
+                    {{ esp.nombre }}
+                  </span>
+                }
+                @if (!medico.especialidades || medico.especialidades.length === 0) {
+                  <span class="text-gray-400 text-xs"> Sin especialidades </span>
+                }
+              </div>
             </td>
-            <td class="px-6 py-4 text-gray-600 font-mono text-xs">
+
+            <td class="px-6 py-4 font-mono text-xs text-gray-600">
               {{ medico.codigoColegiatura }}
             </td>
+
             <td class="px-6 py-4 text-gray-600">
-              {{ medico.telefono || '-' }}
+              {{ medico.telefono || '—' }}
             </td>
-            <td class="px-6 py-4 text-gray-600">
-              {{ medico.email }}
+
+            <!-- iconos de acción -->
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <!-- icono editar teléfono -->
+                <button
+                  (click)="abrirModalEditar(medico)"
+                  class="text-gray-400 hover:text-blue-600 transition-colors"
+                  title="Editar datos"
+                >
+                  <ng-icon name="heroPencilSquare" size="18"> </ng-icon>
+                </button>
+
+                <!-- icono gestionar especialidades -->
+                <button
+                  (click)="abrirModalEspecialidades(medico)"
+                  class="text-gray-400 hover:text-green-600 transition-colors"
+                  title="Gestionar especialidades"
+                >
+                  <ng-icon name="heroAcademicCap" size="18"> </ng-icon>
+                </button>
+              </div>
             </td>
           </tr>
         }
-        @if (medicos.length === 0 && !cargando) {
+        @if (medicos.length === 0) {
           <tr>
-            <td colspan="5" class="text-center py-10 text-gray-400">No hay medicos registrados</td>
+            <td colspan="5" class="text-center py-10 text-gray-400">No hay médicos registrados</td>
           </tr>
         }
       </tbody>
@@ -73,24 +104,26 @@
   </div>
 </div>
 
-<!-- modal para crear medico -->
+<!-- modal crear medico -->
 @if (mostrarModal) {
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Nuevo Medico</h2>
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-screen overflow-y-auto">
+      <div
+        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white"
+      >
+        <h2 class="text-lg font-semibold text-gray-800">Nuevo Médico</h2>
         <button (click)="cerrarModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">
-          X
+          ✕
         </button>
       </div>
+
       <div class="px-6 py-4 space-y-4">
-        <!-- selector de usuario que el medico necesita para poder logearse -->
+        <!-- selector de usuario -->
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="block text-sm font-medium text-gray-700">Usuario</label>
-            <!-- boton para crear un usuario sin salir del moda -->
+            <label class="block text-sm font-medium text-gray-700"> Usuario  </label>
             <button (click)="abrirModalUsuario()" class="text-xs text-blue-600 hover:text-blue-800">
-              + Crear Usuario
+              + Crear usuario
             </button>
           </div>
           <select
@@ -99,61 +132,79 @@
           >
             <option [value]="0">Selecciona un usuario</option>
             @for (u of usuariosMedico; track u.idUsuario) {
-              <option [value]="u.idUsuario">{{ u.nombre }} {{ u.apellido }} - {{ u.email }}</option>
+              <option [value]="u.idUsuario">{{ u.nombre }} {{ u.apellido }} — {{ u.email }}</option>
             }
           </select>
         </div>
-        <!-- codigo de colegiatura -->
+
+        <!-- código de colegiatura -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            Codigo de colegiatura
+            Código de Colegiatura
           </label>
           <input
             type="text"
             [(ngModel)]="nuevoMedico.codigoColegiatura"
-            placeholder="Ejemplo: CMP-055268"
+            placeholder="Ejemplo: CMP-045231"
+            maxlength="10"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <!-- selector de especialidad -->
+
+        <!-- especialidades con checkboxes -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"> Especialidad </label>
-          <select
-            [(ngModel)]="nuevoMedico.idEspecialidad"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <label class="block text-sm font-medium text-gray-700 mb-2"> Especialidades</label>
+          <div
+            class="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"
           >
-            <option [value]="0">Selecciona una especialidad</option>
             @for (esp of especialidades; track esp.idEspecialidad) {
-              <option [value]="esp.idEspecialidad">
-                {{ esp.nombre }}
-              </option>
+              <label
+                class="flex items-center gap-2 cursor-pointer hover:bg-white p-1.5 rounded transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="estaSeleccionada(esp.idEspecialidad)"
+                  (change)="toggleEspecialidad(esp.idEspecialidad)"
+                  class="rounded border-gray-300 text-blue-600"
+                />
+                <span class="text-sm text-gray-700">
+                  {{ esp.nombre }}
+                </span>
+              </label>
             }
-          </select>
+          </div>
+          @if (especialidadesSelecc.length > 0) {
+            <p class="text-xs text-blue-600 mt-1 font-medium">
+              {{ especialidadesSelecc.length }}
+              especialidad(es) seleccionada(s)
+            </p>
+          }
         </div>
-        <!-- telefono opcional -->
+
+        <!-- teléfono -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"> Teléfono </label>
           <input
             type="text"
             [(ngModel)]="nuevoMedico.telefono"
+            placeholder="Ej: 987654321"
             maxlength="9"
-            pattern="[0-9]*"
             (keypress)="soloNumeros($event)"
-            placeholder="Ejemplo: 987654321"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
-      <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
+
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
         <button
           (click)="cerrarModal()"
-          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           Cancelar
         </button>
         <button
           (click)="crearMedico()"
-          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
         >
           Guardar
         </button>
@@ -161,19 +212,21 @@
     </div>
   </div>
 }
-<!-- modal para crear usuario medico que aparece dentro del modal medico -->
+
+<!-- MODAL CREAR USUARIO MÉDICO -->
 @if (mostrarModalUsuario) {
-  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Crear Usuario Medico</h2>
+        <h2 class="text-lg font-semibold text-gray-800">Crear Usuario Médico</h2>
         <button
           (click)="cerrarModalUsuario()"
           class="text-gray-400 hover:text-gray-600 text-xl font-bold"
         >
-          X
+          ✕
         </button>
       </div>
+
       <div class="px-6 py-4 space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -190,7 +243,7 @@
             <input
               type="text"
               [(ngModel)]="nuevoUsuarioMedico.apellido"
-              placeholder="Rojas"
+              placeholder="Mendoza"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -200,7 +253,7 @@
           <input
             type="email"
             [(ngModel)]="nuevoUsuarioMedico.email"
-            placeholder="crojas@clinica.com"
+            placeholder="cmendoza@clinica.com"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -216,18 +269,158 @@
           />
         </div>
       </div>
-      <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
+
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
         <button
           (click)="cerrarModalUsuario()"
-          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           Cancelar
         </button>
         <button
           (click)="crearUsuarioMedico()"
-          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
         >
           Crear Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- modal editar medico -->
+@if (mostrarModalEditar && medicoSelecc) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Editar Médico</h2>
+          <p class="text-xs text-gray-500">
+            Dr. {{ medicoSelecc.nombre }}
+            {{ medicoSelecc.apellido }}
+          </p>
+        </div>
+        <button
+          (click)="cerrarModalEditar()"
+          class="text-gray-400 hover:text-gray-600 text-xl font-bold"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="px-6 py-4 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"> Teléfono </label>
+          <input
+            type="text"
+            [(ngModel)]="telefonoEditar"
+            placeholder="Ej: 987654321"
+            maxlength="9"
+            (keypress)="soloNumeros($event)"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+        <button
+          (click)="cerrarModalEditar()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="guardarEdicion()"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- modal gestionar especialidades-->
+@if (mostrarModalEspecialidades && medicoSelecc) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Especialidades</h2>
+          <p class="text-xs text-gray-500">
+            Dr. {{ medicoSelecc.nombre }}
+            {{ medicoSelecc.apellido }}
+          </p>
+        </div>
+        <button
+          (click)="cerrarModalEspecia()"
+          class="text-gray-400 hover:text-gray-600 text-xl font-bold"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="px-6 py-4 space-y-4">
+        <!-- especialidades actuales -->
+        <div>
+          <p class="text-sm font-medium text-gray-700 mb-2">Especialidades actuales</p>
+          <div class="space-y-2">
+            @for (esp of medicoSelecc.especialidades; track esp.idEspecialidad) {
+              <div class="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2">
+                <span class="text-sm text-blue-700 font-medium">
+                  {{ esp.nombre }}
+                </span>
+                <!-- no mostramos quitar si es la última -->
+                @if (medicoSelecc.especialidades.length > 1) {
+                  <button class="text-red-400 hover:text-red-600 transition-colors text-xs">
+                    Quitar
+                  </button>
+                }
+              </div>
+            }
+            @if (medicoSelecc.especialidades.length === 0) {
+              <p class="text-sm text-gray-400">Sin especialidades asignadas</p>
+            }
+          </div>
+        </div>
+
+        <!-- agregar nueva especialidad -->
+        @if (especialidadesDispo.length > 0) {
+          <div class="border-t border-gray-100 pt-4">
+            <p class="text-sm font-medium text-gray-700 mb-2">Agregar especialidad</p>
+            <div class="flex gap-2">
+              <select
+                [(ngModel)]="especialidadAgregar"
+                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option [value]="0">Selecciona</option>
+                @for (esp of especialidadesDispo; track esp.idEspecialidad) {
+                  <option [value]="esp.idEspecialidad">
+                    {{ esp.nombre }}
+                  </option>
+                }
+              </select>
+              <button
+                (click)="agregarEspecia()"
+                class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium whitespace-nowrap"
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
+        } @else {
+          <p class="text-xs text-gray-400 border-t border-gray-100 pt-4">
+            El médico ya tiene todas las especialidades disponibles
+          </p>
+        }
+      </div>
+
+      <div class="flex justify-end px-6 py-4 border-t border-gray-200">
+        <button
+          (click)="cerrarModalEspecia()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          Cerrar
         </button>
       </div>
     </div>

@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIconsModule } from '@ng-icons/core';
+import { HttpClient } from '@angular/common/http';
 import { PacienteService } from '../../core/services/paciente.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { PacienteRequest, PacienteResponse } from '../../shared/models/paciente.model';
 import { UsuarioResponse } from '../../shared/models/usuario.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-pacientes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIconsModule],
   templateUrl: './pacientes.html',
   styleUrl: './pacientes.css',
 })
@@ -23,6 +26,10 @@ export class Pacientes implements OnInit {
 
   mostrarModal: boolean = false;
   mostrarModalUsuario: boolean = false;
+  mostrarModalEditar: boolean = false;
+  pacienteSelecc: PacienteResponse | null = null;
+  telefonoEditar: string = '';
+  direccionEditar: string = '';
   cargando: boolean = false;
   mensaje: string = '';
   esError: boolean = false;
@@ -59,6 +66,7 @@ export class Pacientes implements OnInit {
     private pacienteService: PacienteService,
     private usuarioService: UsuarioService,
     private notificacionService: NotificacionService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -233,6 +241,39 @@ export class Pacientes implements OnInit {
       return false;
     }
     return true;
+  }
+
+  abrirModalEditar(paciente: PacienteResponse): void {
+    this.pacienteSelecc = paciente;
+    this.telefonoEditar = paciente.telefono || '';
+    this.direccionEditar = paciente.direccion || '';
+    this.mostrarModalEditar = true;
+  }
+
+  cerrarModalEditar(): void {
+    this.mostrarModalEditar = false;
+    this.pacienteSelecc = null;
+  }
+
+  guardarEdicion(): void {
+    if (!this.pacienteSelecc) return;
+
+    this.http
+      .patch<PacienteResponse>(
+        `${environment.apiUrl}/pacientes/${this.pacienteSelecc.idPaciente}/editar`,
+        { telefono: this.telefonoEditar, direccion: this.direccionEditar },
+      )
+      .subscribe({
+        next: (data) => {
+          const index = this.pacientes.findIndex((p) => p.idPaciente === data.idPaciente);
+          if (index !== -1) this.pacientes[index] = data;
+          this.cerrarModalEditar();
+          this.notificacionService.exito('Datos actualizados');
+        },
+        error: (err) => {
+          this.notificacionService.error(err.error?.mensaje || 'Error al editar');
+        },
+      });
   }
 
   private mostrarMensaje(texto: string, esError: boolean): void {
