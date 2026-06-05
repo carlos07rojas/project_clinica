@@ -180,15 +180,22 @@ export class Medicos implements OnInit {
       return;
     }
 
+    // agregar este log temporal para verificar
+    console.log('especialidades:', this.especialidadesSelecc);
+    console.log('nuevoMedico:', this.nuevoMedico);
+
     if (this.especialidadesSelecc.length === 0) {
       this.notificacionService.error('Selecciona al menos una especialidad');
       return;
     }
+
     // validar que el teléfono sea solo números si fue ingresado
     if (this.nuevoMedico.telefono && !/^\d{9}$/.test(this.nuevoMedico.telefono)) {
       this.notificacionService.error('El teléfono debe tener exactamente 9 dígitos numéricos');
       return;
     }
+
+    this.nuevoMedico.idEspecialidades = [...this.especialidadesSelecc];
 
     this.medicoService.crear(this.nuevoMedico).subscribe({
       next: (data) => {
@@ -205,6 +212,9 @@ export class Medicos implements OnInit {
   abrirModalEditar(medico: MedicoResponse): void {
     this.medicoSelecc = medico;
     this.telefonoEditar = medico.telefono || '';
+    this.especialidadService.obtenerActivas().subscribe({
+      next: (todas) => (this.especialidades = todas),
+    });
     this.mostrarModalEditar = true;
   }
 
@@ -224,6 +234,7 @@ export class Medicos implements OnInit {
           if (index !== -1) this.medicos[index] = data;
           this.cerrarModalEditar();
           this.notificacionService.exito('Datos actualizados');
+          this.cargarMedicos();
         },
         error: (err) => {
           this.notificacionService.error(err.error?.mensaje || 'Error al editar');
@@ -287,6 +298,37 @@ export class Medicos implements OnInit {
         },
         error: (err) => {
           this.notificacionService.error(err.error?.mensaje || 'Error al quitar especialdiad');
+        },
+      });
+  }
+
+  agregarEspecialidadDesdeEditar(): void {
+    if (!this.medicoSelecc || this.especialidadAgregar === 0) {
+      this.notificacionService.error('Selecciona una especialidad');
+      return;
+    }
+
+    this.http
+      .post<any>(`${environment.apiUrl}/medico-especialidad`, {
+        idMedico: this.medicoSelecc.idMedico,
+        idEspecialidad: this.especialidadAgregar,
+      })
+      .subscribe({
+        next: () => {
+          this.especialidadAgregar = 0;
+          this.notificacionService.exito('Especialidad agregada');
+          // recargar médicos para ver el cambio
+          this.cargarMedicos();
+          // actualizar el médico seleccionado
+          this.medicoService.obtenerTodos().subscribe({
+            next: (data) => {
+              const actualizado = data.find((m) => m.idMedico === this.medicoSelecc!.idMedico);
+              if (actualizado) this.medicoSelecc = actualizado;
+            },
+          });
+        },
+        error: (err) => {
+          this.notificacionService.error(err.error?.mensaje || 'Error al agregar especialidad');
         },
       });
   }
