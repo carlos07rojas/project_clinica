@@ -125,9 +125,10 @@
             <input
               type="number"
               [(ngModel)]="nuevoServicio.precio"
-              placeholder="50.00"
+              placeholder="0.00"
               min="0"
               step="0.50"
+              (blur)="nuevoServicio.precio = +nuevoServicio.precio.toFixed(2)"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

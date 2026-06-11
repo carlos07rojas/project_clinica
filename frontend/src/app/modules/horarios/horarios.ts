@@ -95,8 +95,6 @@ export class Horarios implements OnInit {
     const partes = this.nuevoHorario.fechaInicio.split('-');
     const fecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
 
-    // getDay() → 0=domingo ... 6=sábado
-    // convertir a nuestro formato: 1=lunes ... 7=domingo
     let diaJS = fecha.getDay();
     this.nuevoHorario.diaSemana = diaJS === 0 ? 7 : diaJS;
 
@@ -229,17 +227,61 @@ export class Horarios implements OnInit {
   }
 
   formatearFechaInicio(fechaInicio: string): string {
-  if (!fechaInicio) return '';
-  const partes = fechaInicio.split('-');
-  const fecha = new Date(
-    parseInt(partes[0]),
-    parseInt(partes[1]) - 1,
-    parseInt(partes[2])
-  );
-  return fecha.toLocaleDateString('es-PE', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long'
-  });
-}
+    if (!fechaInicio) return '';
+    const partes = fechaInicio.split('-');
+    const fecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+    return fecha.toLocaleDateString('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+  }
+
+  esHorarioVigente(fechaFin: string): boolean {
+    if (!fechaFin) return true;
+    const partes = fechaFin.split('-');
+    const fin = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return fin >= hoy;
+  }
+
+  duplicarHorario(horario: HorarioResponse): void {
+    const partesFin = horario.fechaFin.split('-');
+    const fechaFin = new Date(
+      parseInt(partesFin[0]),
+      parseInt(partesFin[1]),
+      parseInt(partesFin[2]),
+    );
+
+    // el lunes de la próxima semana es fechaFin + 1 porque fechaFin siempre es domingo
+    const lunesProximaSemana = new Date(fechaFin);
+    lunesProximaSemana.setDate(fechaFin.getDate() + 1);
+
+    // calcular el día correcto dentro de esa semana
+    const proximaFechaInicio = new Date(lunesProximaSemana);
+    proximaFechaInicio.setDate(lunesProximaSemana.getDate() + (horario.diaSemana - 1));
+
+    // verificar que no sea en el pasado
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    if (proximaFechaInicio < hoy) {
+      this.notificacionService.error('La proxima fecha ya pasó. Crea el horario nuevamente');
+      return;
+    }
+
+    const fechaISO = proximaFechaInicio.toISOString().split('T')[0];
+    // precargar el modal con los datos del horario actual
+    this.nuevoHorario = {
+      idMedico: horario.idMedico,
+      diaSemana: horario.diaSemana,
+      horaInicio: horario.horaInicio,
+      horaFin: horario.horaFin,
+      fechaInicio: fechaISO,
+    };
+
+    // mostrar el nombre del día detectado
+    this.nombreDiaSeleccionado = this.diaSemana[horario.diaSemana];
+    this.mostrarModal = true;
+  }
 }

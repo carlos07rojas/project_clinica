@@ -23,7 +23,7 @@
       <option [value]="0">Selecciona un médico</option>
       @for (m of medicos; track m.idMedico) {
         <option [value]="m.idMedico">
-          Dr. {{ m.nombre }} {{ m.apellido }} 
+          Dr. {{ m.nombre }} {{ m.apellido }}
           {{
             m.especialidades && m.especialidades.length > 0
               ? ' - ' + m.especialidades[0].nombre
@@ -40,12 +40,12 @@
       <thead>
         <tr class="border-b border-gray-200">
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Médico</th>
-          <th class="text-left px-6 py-4 text-gray-500 font-medium">Proxima fecha</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Fecha</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Hora de Inicio</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Hora de Fin</th>
-          <th class="text-left px-6 py-4 text-gray-500 font-medium">Aplica desde</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Semana</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Estado</th>
-          <th class="text-left px-6 py-4 text-gray-500 font-medium">Acción</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -55,29 +55,54 @@
           </tr>
         }
         @for (h of horarios; track h.idHorario) {
-          <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <!-- fila con opacidad si el horario está vencido -->
+          <tr
+            [class]="
+              esHorarioVigente(h.fechaFin)
+                ? 'border-b border-gray-100 hover:bg-gray-50'
+                : 'border-b border-gray-100 bg-gray-50 opacity-60'
+            "
+          >
+            <!-- médico -->
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-8 h-8 rounded-full bg-gray-100 text-blue-700 flex items-center justify-center text-xs font-bold"
+                  class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold"
                 >
                   {{ h.nombreMedico.charAt(0) }}
                 </div>
                 <span class="font-medium text-gray-800 text-sm"> Dr. {{ h.nombreMedico }} </span>
               </div>
             </td>
+
+            <!-- día -->
             <td class="px-6 py-4 text-gray-600 text-xs capitalize">
               {{ formatearFechaInicio(h.fechaInicio) }}
             </td>
+
+            <!-- hora inicio -->
             <td class="px-6 py-4 text-gray-700 font-mono text-sm">
               {{ h.horaInicio.slice(0, 5) }}
             </td>
+
+            <!-- hora fin -->
             <td class="px-6 py-4 text-gray-700 font-mono text-sm">
               {{ h.horaFin.slice(0, 5) }}
             </td>
-            <td class="px-6 py-4 text-gray-600 text-xs capitalize">
-              {{ h.fechaInicio | date: 'dd/MM/yyyy' }}
+
+            <!-- semana con indicador vigente/vencido -->
+            <td class="px-6 py-4 text-xs text-gray-600">
+              {{ h.fechaInicio | date: 'dd/MM' }}
+              al
+              {{ h.fechaFin | date: 'dd/MM/yyyy' }}
+              @if (!esHorarioVigente(h.fechaFin)) {
+                <span class="ml-2 bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full text-xs">
+                  Vencido
+                </span>
+              }
             </td>
+
+            <!-- estado activo o inactivo -->
             <td class="px-6 py-4">
               @if (h.activo) {
                 <div
@@ -95,17 +120,26 @@
                 </div>
               }
             </td>
+
+            <!-- acciones -->
             <td class="px-6 py-4">
-              @if (h.activo) {
+              <div class="flex items-center gap-2">
+                @if (esHorarioVigente(h.fechaFin) && h.activo) {
+                  <button
+                    (click)="desactivarHorario(h.idHorario)"
+                    class="text-red-500 hover:text-red-700 border border-red-200 px-3 py-1 rounded-lg text-xs transition-colors"
+                  >
+                    Desactivar
+                  </button>
+                }
                 <button
-                  (click)="desactivarHorario(h.idHorario)"
-                  class="text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-1 rounded-lg text-xs transition-colors"
+                  (click)="duplicarHorario(h)"
+                  class="text-blue-500 hover:text-blue-700 border border-blue-200 px-3 py-1 rounded-lg text-xs transition-colors"
+                  title="Crear para próxima semana"
                 >
-                  Desactivar
+                  + Próxima semana
                 </button>
-              } @else {
-                <span class="text-gray-400 text-xs">Inactivo</span>
-              }
+              </div>
             </td>
           </tr>
         }

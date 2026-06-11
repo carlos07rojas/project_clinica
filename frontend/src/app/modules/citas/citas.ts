@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIconsModule } from '@ng-icons/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { CitaService } from '../../core/services/cita.service';
 import { MedicoService } from '../../core/services/medico.service';
 import { PacienteService } from '../../core/services/paciente.service';
@@ -77,6 +79,7 @@ export class Citas implements OnInit {
     private servicioService: ServicioService,
     private horarioService: HorarioService,
     private notificacionService: NotificacionService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -200,15 +203,37 @@ export class Citas implements OnInit {
       this.nuevaCita.idServicio = 0;
       return;
     }
-    // para cargar medicos de la especialidad seleccionada
-    this.medicoService.obtenerPorEspecialidad(this.idEspecialidadSelecc).subscribe({
-      next: (data) => {
-        this.medicos = data;
-        this.nuevaCita.idMedico = 0;
-      },
-    });
 
-    // para cargar servicios de la especialidad seleccionada
+    // usar el endpoint de medico-especialidad
+    this.http
+      .get<
+        any[]
+      >(`${environment.apiUrl}/medico-especialidad/especialidad/${this.idEspecialidadSelecc}`)
+      .subscribe({
+        next: (relaciones) => {
+          // cada relación tiene idMedico y nombreMedico
+          // convertimos al formato que espera el selector
+          this.medicos = relaciones.map((r) => ({
+            idMedico: r.idMedico,
+            nombre: r.nombreMedico.split(' ')[0],
+            apellido: r.nombreMedico.split(' ').slice(1).join(' '),
+            email: '',
+            codigoColegiatura: '',
+            telefono: '',
+            especialidades: [],
+          }));
+          this.nuevaCita.idMedico = 0;
+
+          if (this.medicos.length === 0) {
+            this.notificacionService.error('No hay médicos disponibles para esta especialidad');
+          }
+        },
+        error: () => {
+          this.notificacionService.error('Error al cargar médicos de la especialidad');
+        },
+      });
+
+    // cargar servicios de la especialidad
     this.servicioService.obtenerPorEspecialidad(this.idEspecialidadSelecc).subscribe({
       next: (data) => {
         this.servicios = data;
