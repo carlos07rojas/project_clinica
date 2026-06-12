@@ -114,22 +114,16 @@
                 >
                   {{ pac.nombre.charAt(0) }}{{ pac.apellido.charAt(0) }}
                 </div>
-                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}</p>
-                <td class="px-6 py-4">
-                  <button
-                    (click)="abrirModalEditar(pac)"
-                    class="text-gray-400 hover:text-blue-600 transition-colors"
-                    title="Editar datos"
-                  >
-                    <ng-icon name="heroPencilSquare" size="18"></ng-icon>
-                  </button>
-                </td>
+                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}</p>                
               </div>
             </td>
+            <!-- dni -->
             <td class="px-6 py-4 font mono text-xs text-gray-600">
               {{ pac.dni }}
             </td>
+            <!-- años -->
             <td class="px-6 py-4 text-gray-600">{{ calcularEdad(pac.fechaNacimiento) }} años</td>
+            <!-- sexo -->
             <td class="px-6 py-4">
               @if (pac.sexo === 'M') {
                 <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font medium"
@@ -145,11 +139,23 @@
                 >
               }
             </td>
+            <!-- telefono -->
             <td class="px-6 py-4 text-gray-600">
               {{ pac.telefono || '-' }}
             </td>
+            <!-- email -->
             <td class="px-6 py-4 text-gray-600">
               {{ pac.email }}
+            </td>
+            <!-- acciones -->
+            <td class="px-6 py-4">
+              <button
+                (click)="abrirModalEditar(pac)"
+                class="text-gray-400 hover:text-blue-600 transition-colors"
+                title="Editar datos"
+              >
+                <ng-icon name="heroPencilSquare" size="18"></ng-icon>
+              </button>
             </td>
           </tr>
         }
@@ -164,7 +170,6 @@
             </td>
           </tr>
         }
-        
       </tbody>
     </table>
   </div>
@@ -386,7 +391,7 @@
         </div>
       </div>
 
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+      <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
         <button
           (click)="cerrarModalEditar()"
           class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"

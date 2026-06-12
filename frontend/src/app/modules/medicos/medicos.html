@@ -83,13 +83,13 @@
                 </button>
 
                 <!-- icono gestionar especialidades -->
-                <button
+                <!-- <button
                   (click)="abrirModalEspecialidades(medico)"
                   class="text-gray-400 hover:text-green-600 transition-colors"
                   title="Gestionar especialidades"
                 >
                   <ng-icon name="heroAcademicCap" size="18"> </ng-icon>
-                </button>
+                </button> -->
               </div>
             </td>
           </tr>
@@ -213,7 +213,7 @@
   </div>
 }
 
-<!-- modal para crear medico -->
+<!-- modal para crear usuario de medico -->
 @if (mostrarModalUsuario) {
   <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
@@ -339,32 +339,34 @@
         </div>
 
         <!-- agregar especialidades -->
-        <div class="border-t border-gray-100 pt-4">
-          <p class="text-sm font-medium text-gray-700 mb-2">Agregar especialidad</p>
-          <div class="flex gap-2">
-            <select
-              [(ngModel)]="especialidadAgregar"
-              class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-sm focus:ring-blue-500"
-            >
-              <option [value]="0">Selecciona</option>
-              @for (esp of especialidades; track esp.idEspecialidad) {
-                @if (
-                  !medicoSelecc.especialidades?.find((e) => e.idEspecialidad === esp.idEspecialidad)
-                ) {
+        @if (especialidadesDispo.length > 0) {
+          <div class="border-t border-gray-100 pt-4">
+            <p class="text-sm font-medium text-gray-700 mb-2">Agregar especialidad</p>
+            <div class="flex gap-2">
+              <select
+                [(ngModel)]="especialidadAgregar"
+                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option [value]="0">Selecciona</option>
+                @for (esp of especialidadesDispo; track esp.idEspecialidad) {
                   <option [value]="esp.idEspecialidad">
                     {{ esp.nombre }}
                   </option>
                 }
-              }
-            </select>
-            <button
-              (click)="agregarEspecialidadDesdeEditar()"
-              class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
-            >
-              Agregar
-            </button>
+              </select>
+              <button
+                (click)="agregarEspecia()"
+                class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium whitespace-nowrap"
+              >
+                Agregar
+              </button>
+            </div>
           </div>
-        </div>
+        } @else {
+          <p class="text-xs text-gray-400 border-t border-gray-100 pt-4">
+            El médico ya tiene todas las especialidades disponibles
+          </p>
+        }
       </div>
 
       <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">
@@ -386,6 +388,7 @@
 }
 
 <!-- modal gestionar especialidades-->
+ 
 @if (mostrarModalEspecialidades && medicoSelecc) {
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
@@ -427,40 +430,9 @@
               <p class="text-sm text-gray-400">Sin especialidades asignadas</p>
             }
           </div>
-        </div>
-
-        <!-- agregar nueva especialidad -->
-        @if (especialidadesDispo.length > 0) {
-          <div class="border-t border-gray-100 pt-4">
-            <p class="text-sm font-medium text-gray-700 mb-2">Agregar especialidad</p>
-            <div class="flex gap-2">
-              <select
-                [(ngModel)]="especialidadAgregar"
-                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option [value]="0">Selecciona</option>
-                @for (esp of especialidadesDispo; track esp.idEspecialidad) {
-                  <option [value]="esp.idEspecialidad">
-                    {{ esp.nombre }}
-                  </option>
-                }
-              </select>
-              <button
-                (click)="agregarEspecia()"
-                class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium whitespace-nowrap"
-              >
-                Agregar
-              </button>
-            </div>
-          </div>
-        } @else {
-          <p class="text-xs text-gray-400 border-t border-gray-100 pt-4">
-            El médico ya tiene todas las especialidades disponibles
-          </p>
-        }
+        </div>        
       </div>
-
-      <div class="flex justify-end px-6 py-4 border-t border-gray-200">
+      <div class="flex justify-center px-6 py-4 border-t border-gray-200">
         <button
           (click)="cerrarModalEspecia()"
           class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"

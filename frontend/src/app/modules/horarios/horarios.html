@@ -180,7 +180,7 @@
             <option [value]="0">Selecciona un médico</option>
             @for (m of medicos; track m.idMedico) {
               <option [value]="m.idMedico">
-                Dr. {{ m.nombre }} {{ m.apellido }} —
+                Dr. {{ m.nombre }} {{ m.apellido }}
                 {{
                   m.especialidades && m.especialidades.length > 0
                     ? ' — ' + m.especialidades[0].nombre

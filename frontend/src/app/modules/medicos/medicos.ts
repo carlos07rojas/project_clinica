@@ -104,6 +104,13 @@ export class Medicos implements OnInit {
 
   cerrarModal(): void {
     this.mostrarModal = false;
+    this.especialidadesSelecc = [];
+    this.nuevoMedico = {
+      idUsuario: 0,
+      codigoColegiatura: '',
+      idEspecialidades: [],
+      telefono: '',
+    };
   }
 
   toggleEspecialidad(idEspecialidad: number): void {
@@ -165,6 +172,9 @@ export class Medicos implements OnInit {
   }
 
   crearMedico(): void {
+    // asignar explicitamente
+    this.nuevoMedico.idEspecialidades = [...this.especialidadesSelecc];
+
     if (this.nuevoMedico.idUsuario === 0) {
       this.notificacionService.error('Selecciona un usuario');
       return;
@@ -181,21 +191,9 @@ export class Medicos implements OnInit {
     }
 
     // agregar este log temporal para verificar
-    console.log('especialidades:', this.especialidadesSelecc);
-    console.log('nuevoMedico:', this.nuevoMedico);
-
-    if (this.especialidadesSelecc.length === 0) {
-      this.notificacionService.error('Selecciona al menos una especialidad');
-      return;
-    }
-
-    // validar que el teléfono sea solo números si fue ingresado
-    if (this.nuevoMedico.telefono && !/^\d{9}$/.test(this.nuevoMedico.telefono)) {
-      this.notificacionService.error('El teléfono debe tener exactamente 9 dígitos numéricos');
-      return;
-    }
-
     this.nuevoMedico.idEspecialidades = [...this.especialidadesSelecc];
+
+    console.log('Enviando', JSON.stringify(this.nuevoMedico));
 
     this.medicoService.crear(this.nuevoMedico).subscribe({
       next: (data) => {
@@ -207,13 +205,23 @@ export class Medicos implements OnInit {
         this.notificacionService.error(err.error?.mensaje || 'Error al crear medico');
       },
     });
+
+    // validar que el teléfono sea solo números si fue ingresado
+    if (this.nuevoMedico.telefono && !/^\d{9}$/.test(this.nuevoMedico.telefono)) {
+      this.notificacionService.error('El teléfono debe tener exactamente 9 dígitos numéricos');
+      return;
+    }
   }
 
   abrirModalEditar(medico: MedicoResponse): void {
-    this.medicoSelecc = medico;
+    this.medicoSelecc = { ...medico, especialidades: [...(medico.especialidades || [])] };
     this.telefonoEditar = medico.telefono || '';
+
     this.especialidadService.obtenerActivas().subscribe({
-      next: (todas) => (this.especialidades = todas),
+      next: (todas) => {
+        const idsActuales = (medico.especialidades || []).map((e) => e.idEspecialidad);
+        this.especialidadesDispo = todas.filter((e) => !idsActuales.includes(e.idEspecialidad));
+      },
     });
     this.mostrarModalEditar = true;
   }
@@ -244,22 +252,11 @@ export class Medicos implements OnInit {
 
   // abrir modal para gestionar espeicialidades del medico
   abrirModalEspecialidades(medico: MedicoResponse): void {
-    this.medicoSelecc = medico;
-    this.mostrarModalEspecialidades = true;
-    this.especialidadAgregar = 0;
-
-    // cargar especialidades, activar nos asignada
-    this.especialidadService.obtenerActivas().subscribe({
-      next: (todas) => {
-        const idsAsignadas = medico.especialidades.map((e) => e.idEspecialidad);
-        this.especialidadesDispo = todas.filter((e) => !idsAsignadas.includes(e.idEspecialidad));
-      },
-    });
+    this.abrirModalEditar(medico);
   }
 
   cerrarModalEspecia(): void {
     this.mostrarModalEspecialidades = false;
-    this.medicoSelecc = null;
   }
 
   agregarEspecia(): void {
@@ -274,11 +271,30 @@ export class Medicos implements OnInit {
         idEspecialidad: this.especialidadAgregar,
       })
       .subscribe({
-        next: () => {
+        next: (data) => {
           // se recargara medicos para ver la especialidad nueva
-          this.cargarMedicos();
-          this.cerrarModalEspecia();
           this.notificacionService.exito('Especialidad agregada');
+          this.especialidadAgregar = 0;
+
+          // recarga los datos del medico seleccionado
+          this.medicoService.obtenerTodos().subscribe({
+            next: (medicos) => {
+              const actualizado = medicos.find((m) => m.idMedico === this.medicoSelecc!.idMedico);
+              if (actualizado) {
+                // actualizar los medicos selccionados con los nuevos datos
+                this.medicoSelecc = {
+                  ...actualizado,
+                  especialidades: [...(actualizado.especialidades || [])],
+                };
+                // recalcular las especialidades disponibles
+                const idsActuales = this.medicoSelecc.especialidades.map((e) => e.idEspecialidad);
+                this.especialidadesDispo = this.especialidadesDispo.filter(
+                  (e) => !idsActuales.includes(e.idEspecialidad),
+                );
+                this.medicos = medicos;
+              }
+            },
+          });
         },
         error: (err) => {
           this.notificacionService.error(err.error?.mensaje || 'Error al agregar especialidad');
