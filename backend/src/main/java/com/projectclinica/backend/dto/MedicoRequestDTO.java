@@ -7,6 +7,6 @@ import java.util.List;
 public class MedicoRequestDTO {
     private Integer idUsuario;
     private String codigoColegiatura;
-    private List<Integer> idEspecialidad;
+    private List<Integer> idEspecialidades;
     private String telefono;
 }

@@ -57,7 +57,7 @@ public class MedicoService {
 
         // verificar que una especialidad debe esxister y estar activa
         // Especialidad especialidad =
-        // especialidadRepository.findById(dto.getIdEspecialidad())
+        // especialidadRepository.findById(dto.getIdEspecialidades())
         // .orElseThrow(() -> new RuntimeException(
         // "No existe la especialidad con id: " + dto.getIdEspecialidad()));
         // if (!especialidad.getActivo()) {
@@ -72,16 +72,27 @@ public class MedicoService {
 
         Medico guardado = medicoRepository.save(medico);
 
+        // logs temporales
+        System.out.println("DTO completo: " + dto);
+        System.out.println("idEspecialidades: " + dto.getIdEspecialidades());
+        System.out.println("Es null: " + (dto.getIdEspecialidades() == null));
+        System.out
+                .println("Tamaño: " + (dto.getIdEspecialidades() != null ? dto.getIdEspecialidades().size() : "null"));
+
         // con esto se asginara especialidades desde la lista
-        if (dto.getIdEspecialidad() != null) {
-            for (Integer idEsp : dto.getIdEspecialidad()) {
+        if (dto.getIdEspecialidades() != null && !dto.getIdEspecialidades().isEmpty()) {
+            for (Integer idEsp : dto.getIdEspecialidades()) {
+                System.out.println("Procesando especialidad id: " + idEsp);
                 Especialidad esp = especialidadRepository.findById(idEsp)
                         .orElseThrow(() -> new RuntimeException("Especialidad no encontrada" + idEsp));
                 MedicoEspecialidad me = new MedicoEspecialidad();
                 me.setMedico(guardado);
                 me.setEspecialidad(esp);
                 medicoEspecialidadRepository.save(me);
+                System.out.println("guardada especialidad: " + esp.getNombre());
             }
+        } else {
+            System.out.println("Lista nula o vacia" + dto.getIdEspecialidades());
         }
 
         return convertirAResponseDTO(guardado);
