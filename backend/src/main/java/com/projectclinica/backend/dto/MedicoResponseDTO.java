@@ -12,5 +12,5 @@ public class MedicoResponseDTO {
     private String email;
     private String codigoColegiatura;
     private String telefono;
-    private List<EspecialidadResponseDTO> idEspecialidades;
+    private List<EspecialidadResponseDTO> especialidades;
 }

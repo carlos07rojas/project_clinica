@@ -132,7 +132,7 @@ public class MedicoService {
                     esp.setActivo(me.getEspecialidad().getActivo());
                     return esp;
                 }).collect(java.util.stream.Collectors.toList());
-        dto.setIdEspecialidades(especialidades);
+        dto.setEspecialidades(especialidades);
         return dto;
     }
 }
