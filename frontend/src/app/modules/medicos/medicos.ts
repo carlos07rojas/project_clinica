@@ -52,6 +52,13 @@ export class Medicos implements OnInit {
 
   especialidadesSelecc: number[] = [];
 
+  // especialidades que se van a agregar
+  especialidadesAgregar: number[] = [];
+  // especialidades que se van a quitar
+  especialidadesAQuitar: number[] = [];
+  // vista temporal de especialidades actuales en el modal
+  especialidadesVistaModal: EspecialidadResponse[] = [];
+
   // objeto del formulario de crear usuario médico donde primero creamos el usuario, luego el perfil médico
   nuevoUsuarioMedico = {
     nombre: '',
@@ -213,10 +220,95 @@ export class Medicos implements OnInit {
     }
   }
 
+  // abrir modal para gestionar espeicialidades del medico
+  // abrirModalEspecialidades(medico: MedicoResponse): void {
+  //   this.abrirModalEditar(medico);
+  // }
+
+  // cerrarModalEspecia(): void {
+  //   this.mostrarModalEspecialidades = false;
+  // }
+
+  toggleEspecialidadAgregar(idEspecialidad: number): void {
+    const index = this.especialidadesAgregar.indexOf(idEspecialidad);
+    if (index === -1) {
+      // se marca para agregar
+      this.especialidadesAgregar = [...this.especialidadesAgregar, idEspecialidad];
+    } else {
+      // para desmarcar
+      this.especialidadesAgregar = this.especialidadesAgregar.filter((id) => id !== idEspecialidad);
+    }
+  }
+
+  confirmAgregarEspecia(): void {
+    if (this.especialidadesAgregar.length === 0) return;
+    for (const idEsp of this.especialidadesAgregar) {
+      const esp = this.especialidadesDispo.find((e) => e.idEspecialidad === idEsp);
+      if (esp) {
+        // mover de disponibilidad a vista modal
+        this.especialidadesDispo = this.especialidadesDispo.filter(
+          (e) => e.idEspecialidad !== idEsp,
+        );
+        const yaEnVista = this.especialidadesVistaModal.some((e) => e.idEspecialidad === idEsp);
+        if (!yaEnVista) {
+          this.especialidadesVistaModal = [...this.especialidadesVistaModal, esp];
+        }
+      }
+    }
+  }
+
+  agregarEspecia(): void {
+    if (!this.medicoSelecc || this.especialidadesAgregar.length === 0) {
+      this.notificacionService.error('Selecciona una especialidad');
+      return;
+    }
+    // se crea promesas para cada especialidad seleccionada
+    const peticiones = this.especialidadesAgregar.map((idEsp) =>
+      this.http.post<any>(`${environment.apiUrl}/medico-especialidad`, {
+        idMedico: this.medicoSelecc!.idMedico,
+        idEspecialidad: idEsp,
+      }),
+    );
+
+    Promise.all(peticiones)
+      .then(() => {
+        this.notificacionService.exito(
+          `${this.especialidadesAgregar.length} especialidades(es) agregada(s)`,
+        );
+        this.especialidadesAgregar = [];
+
+        this.medicoService.obtenerTodos().subscribe({
+          next: (medicos) => {
+            this.medicos = medicos;
+            const actualizado = medicos.find((m) => m.idMedico === this.medicoSelecc!.idMedico);
+            if (actualizado) {
+              this.medicoSelecc = {
+                ...actualizado,
+                especialidades: [...(actualizado.especialidades || [])],
+              };
+              const idsActuales = this.medicoSelecc.especialidades.map((e) => e.idEspecialidad);
+              this.especialidadesDispo = this.especialidadesDispo.filter(
+                (e) => !idsActuales.includes(e.idEspecialidad),
+              );
+            }
+          },
+        });
+      })
+      .catch(() => {
+        this.notificacionService.error('Error al agregar especialidad');
+      });
+  }
+
   abrirModalEditar(medico: MedicoResponse): void {
     this.medicoSelecc = { ...medico, especialidades: [...(medico.especialidades || [])] };
     this.telefonoEditar = medico.telefono || '';
+    this.especialidadesAQuitar = [];
+    this.especialidadesAgregar = [];
 
+    // vista temporal = copia de las actuales
+    this.especialidadesVistaModal = [...(medico.especialidades || [])];
+
+    // cargar todas las activas y filtrar las que ya se tiene
     this.especialidadService.obtenerActivas().subscribe({
       next: (todas) => {
         const idsActuales = (medico.especialidades || []).map((e) => e.idEspecialidad);
@@ -226,80 +318,92 @@ export class Medicos implements OnInit {
     this.mostrarModalEditar = true;
   }
 
+  // quitar especialidad de la vista del modal
+  quitarEspeciaModal(esp: EspecialidadResponse): void {
+    // para agregar a la lista de "quitar"
+    if (!this.especialidadesAQuitar.includes(esp.idEspecialidad)) {
+      this.especialidadesAQuitar.push(esp.idEspecialidad);
+    }
+    // en caso este en "agregar" tambien se quita de ahi
+    this.especialidadesAgregar = this.especialidadesAgregar.filter(
+      (id) => id !== esp.idEspecialidad,
+    );
+
+    this.especialidadesVistaModal = this.especialidadesVistaModal.filter(
+      (e) => e.idEspecialidad !== esp.idEspecialidad,
+    );
+
+    const yaExiste = this.especialidadesDispo.some((e) => e.idEspecialidad === esp.idEspecialidad);
+    if (!yaExiste) {
+      this.especialidadesDispo = [...this.especialidadesDispo, esp];
+    }
+  }
+
   cerrarModalEditar(): void {
     this.mostrarModalEditar = false;
     this.medicoSelecc = null;
+    this.especialidadesAgregar = [];
+    this.especialidadesAQuitar = [];
+    this.especialidadesVistaModal = [];
   }
 
   guardarEdicion(): void {
     if (!this.medicoSelecc) return;
 
-    this.medicoService
-      .editar(this.medicoSelecc.idMedico, { telefono: this.telefonoEditar })
-      .subscribe({
-        next: (data) => {
-          const index = this.medicos.findIndex((m) => m.idMedico === data.idMedico);
-          if (index !== -1) this.medicos[index] = data;
-          this.cerrarModalEditar();
-          this.notificacionService.exito('Datos actualizados');
-          this.cargarMedicos();
-        },
-        error: (err) => {
-          this.notificacionService.error(err.error?.mensaje || 'Error al editar');
-        },
-      });
-  }
+    const idMedico = this.medicoSelecc.idMedico;
+    // obtener todas las relaciones actuales del medico
+    this.http.get<any[]>(`${environment.apiUrl}/medico-especialidad/medico/${idMedico}`).subscribe({
+      next: (relaciones) => {
+        const promesas: Promise<any>[] = [];
 
-  // abrir modal para gestionar espeicialidades del medico
-  abrirModalEspecialidades(medico: MedicoResponse): void {
-    this.abrirModalEditar(medico);
-  }
+        // desactivar las especialidades a quitar
+        for (const idEsp of this.especialidadesAQuitar) {
+          const relacion = relaciones.find((r: any) => r.idEspecialidad === idEsp);
+          if (relacion) {
+            promesas.push(
+              this.http
+                .patch(`${environment.apiUrl}/medico-especialidad/${relacion.id}/desactivar`, {})
+                .toPromise(),
+            );
+          }
+        }
 
-  cerrarModalEspecia(): void {
-    this.mostrarModalEspecialidades = false;
-  }
+        // agregar las nuevas especialidades
+        for (const idEsp of this.especialidadesAgregar) {
+          promesas.push(
+            this.http
+              .post<any>(`${environment.apiUrl}/medico-especialidad`, {
+                idMedico,
+                idEspecialidad: idEsp,
+              })
+              .toPromise(),
+          );
+        }
 
-  agregarEspecia(): void {
-    if (!this.medicoSelecc || this.especialidadAgregar === 0) {
-      this.notificacionService.error('Selecciona una especialidad');
-      return;
-    }
+        // actualizar telefono
+        promesas.push(
+          this.medicoService
+            .editar(idMedico, {
+              telefono: this.telefonoEditar,
+            })
+            .toPromise(),
+        );
 
-    this.http
-      .post<any>(`${environment.apiUrl}/medico-especialidad`, {
-        idMedico: this.medicoSelecc.idMedico,
-        idEspecialidad: this.especialidadAgregar,
-      })
-      .subscribe({
-        next: (data) => {
-          // se recargara medicos para ver la especialidad nueva
-          this.notificacionService.exito('Especialidad agregada');
-          this.especialidadAgregar = 0;
-
-          // recarga los datos del medico seleccionado
-          this.medicoService.obtenerTodos().subscribe({
-            next: (medicos) => {
-              const actualizado = medicos.find((m) => m.idMedico === this.medicoSelecc!.idMedico);
-              if (actualizado) {
-                // actualizar los medicos selccionados con los nuevos datos
-                this.medicoSelecc = {
-                  ...actualizado,
-                  especialidades: [...(actualizado.especialidades || [])],
-                };
-                // recalcular las especialidades disponibles
-                const idsActuales = this.medicoSelecc.especialidades.map((e) => e.idEspecialidad);
-                this.especialidadesDispo = this.especialidadesDispo.filter(
-                  (e) => !idsActuales.includes(e.idEspecialidad),
-                );
-                this.medicos = medicos;
-              }
-            },
+        // ejecutar todo y actualizar la tabla
+        Promise.all(promesas)
+          .then(() => {
+            this.notificacionService.exito('Medico actualizado correctamente');
+            this.cerrarModalEditar();
+            this.cargarMedicos();
+          })
+          .catch(() => {
+            this.notificacionService.error('Error al guardar cambios');
           });
-        },
-        error: (err) => {
-          this.notificacionService.error(err.error?.mensaje || 'Error al agregar especialidad');
-        },
-      });
+      },
+      error: () => {
+        this.notificacionService.error('Error al obtener relaciones del medico');
+      },
+    });
   }
 
   quitarEspecia(idRelacion: number): void {
