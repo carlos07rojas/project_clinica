@@ -220,15 +220,6 @@ export class Medicos implements OnInit {
     }
   }
 
-  // abrir modal para gestionar espeicialidades del medico
-  // abrirModalEspecialidades(medico: MedicoResponse): void {
-  //   this.abrirModalEditar(medico);
-  // }
-
-  // cerrarModalEspecia(): void {
-  //   this.mostrarModalEspecialidades = false;
-  // }
-
   toggleEspecialidadAgregar(idEspecialidad: number): void {
     const index = this.especialidadesAgregar.indexOf(idEspecialidad);
     if (index === -1) {
@@ -358,13 +349,20 @@ export class Medicos implements OnInit {
 
         // desactivar las especialidades a quitar
         for (const idEsp of this.especialidadesAQuitar) {
-          const relacion = relaciones.find((r: any) => r.idEspecialidad === idEsp);
+          const relacion = relaciones.find((r: any) => Number(r.idEspecialidad) === Number(idEsp));
+
+          console.log('Buscando relacion para idEsp:', idEsp);
+          console.log('Relaciones disponibles:', relaciones);
+          console.log('Relacion encontrada:', relacion);
+
           if (relacion) {
             promesas.push(
               this.http
                 .patch(`${environment.apiUrl}/medico-especialidad/${relacion.id}/desactivar`, {})
                 .toPromise(),
             );
+          } else {
+            console.warn('No se encontró relación para especialidad:', idEsp);
           }
         }
 
