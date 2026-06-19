@@ -82,7 +82,9 @@ export class Medicos implements OnInit {
 
   cargarMedicos(): void {
     this.medicoService.obtenerTodos().subscribe({
-      next: (data) => (this.medicos = data),
+      next: (data) => {
+        this.medicos = [...data];
+      },
       error: () => this.notificacionService.error('Error al cargar medicos'),
     });
   }
