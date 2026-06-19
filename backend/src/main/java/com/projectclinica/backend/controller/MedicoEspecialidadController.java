@@ -40,7 +40,7 @@ public class MedicoEspecialidadController {
         return ResponseEntity.ok(service.obtenerPorEspecialidad(idEspecialidad));
     }
 
-    @PatchMapping("/{id}/desactivad")
+    @PatchMapping("/{id}/desactivar")
     public ResponseEntity<MedicoEspecialidadResponseDTO> desactivar(@PathVariable Integer id) {
         return ResponseEntity.ok(service.desactivar(id));
     }
