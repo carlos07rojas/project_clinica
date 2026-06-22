@@ -1,5 +1,6 @@
 package com.projectclinica.backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,5 +29,6 @@ public class MedicoEspecialidad {
     private Especialidad especialidad;
 
     // tener un borrado lógico permitira quitar una especialidad sin perder el historial de que alguna vez la tuvo
+    @Column(name = "activo") 
     private Boolean activo = true;
 }

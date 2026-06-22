@@ -59,6 +59,7 @@ public class MedicoEspecialidadService {
     public MedicoEspecialidadResponseDTO desactivar(Integer id) {
         MedicoEspecialidad me = medicoEspecialidadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Relacion no encontrada"));
+                me.setActivo(false);
         return convertirAResponseDTO(medicoEspecialidadRepository.save(me));
     }
 
