@@ -16,4 +16,6 @@ public interface ServicioRepository
     // Busca todos los servicios con una especialidad especifica
     @Query("SELECT s FROM Servicio s WHERE s.especialidad.idEspecialidad = :idEspecialidad AND s.activo = true")
     List<Servicio> findActivosPorEspecialidad(@Param("idEspecialidad") Integer idEspecialidad);
+
+    boolean existsByNombre(String nombre);
 }

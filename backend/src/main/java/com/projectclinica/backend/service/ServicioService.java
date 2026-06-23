@@ -5,6 +5,7 @@ import com.projectclinica.backend.dto.ServicioResponseDTO;
 import com.projectclinica.backend.model.Especialidad;
 import com.projectclinica.backend.model.Servicio;
 import com.projectclinica.backend.repository.EspecialidadRepository;
+import com.projectclinica.backend.repository.MedicoEspecialidadRepository;
 import com.projectclinica.backend.repository.ServicioRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -14,11 +15,13 @@ import java.util.stream.Collectors;
 public class ServicioService {
     private final ServicioRepository servicioRepository;
     private final EspecialidadRepository especialidadRepository;
+    private final MedicoEspecialidadRepository medicoEspecialidadRepository;
 
     public ServicioService(ServicioRepository servicioRepository,
-            EspecialidadRepository especialidadRepository) {
+            EspecialidadRepository especialidadRepository, MedicoEspecialidadRepository medicoEspecialidadRepository) {
         this.servicioRepository = servicioRepository;
         this.especialidadRepository = especialidadRepository;
+        this.medicoEspecialidadRepository = medicoEspecialidadRepository;
     }
 
     // Crear servicio
@@ -31,6 +34,18 @@ public class ServicioService {
             throw new RuntimeException(
                     "La especialidad esta desactivada");
         }
+
+        // solo crear servicio si hay medicos activos en esa especialidad
+        long medicosActivos = medicoEspecialidadRepository.contarMedicosActivos(dto.getIdEspecialidad());
+        if (medicosActivos == 0) {
+            throw new RuntimeException("No hay médicos disponibles para esta especialidad");
+        }
+        
+        // verificar el doplicado
+        if (servicioRepository.existsByNombre(dto.getNombre())) {
+            throw new RuntimeException("Ya existe un servicio con ese nombre");
+        }
+
         // el precio de los servicio se debe estrablecer > 0
         if (dto.getPrecio().doubleValue() <= 0) {
             throw new RuntimeException(

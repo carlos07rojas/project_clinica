@@ -6,4 +6,5 @@ import lombok.Data;
 public class PacienteEditarDTO {
     private String telefono;
     private String direcion;
+    private String email;
 }

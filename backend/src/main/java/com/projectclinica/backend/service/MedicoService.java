@@ -102,8 +102,19 @@ public class MedicoService {
     public MedicoResponseDTO editarMedico(Integer id, MedicoEditarDTO dto) {
         Medico medico = medicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Medico no encontrado con id: " + id));
+        // para editar el telefono del usuario
         if (dto.getTelefono() != null) {
             medico.setTelefono(dto.getTelefono());
+        }
+
+        // editar el gmail del medico
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            if (usuarioRepository.existsByEmailAndIdUsuarioNot(dto.getEmail(), medico.getUsuario().getIdUsuario())) {
+                throw new RuntimeException(
+                        "El Gmail ya esta en uso por otro usuario");
+            }
+            medico.getUsuario().setEmail(dto.getEmail());
+            usuarioRepository.save(medico.getUsuario());
         }
 
         return convertirAResponseDTO(medicoRepository.save(medico));

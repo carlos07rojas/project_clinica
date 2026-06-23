@@ -102,6 +102,13 @@ public class PacienteService {
         if (dto.getDirecion() != null) {
             paciente.setDireccion(dto.getDirecion());
         }
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            if (usuarioRepository.existsByEmailAndIdUsuarioNot(dto.getEmail(), paciente.getUsuario().getIdUsuario())) {
+                throw new RuntimeException("El gmail ya esta en uso por otro usuario");
+            }
+            paciente.getUsuario().setEmail(dto.getEmail());
+            usuarioRepository.save(paciente.getUsuario());
+        }
 
         return convertirAResponseDTO(pacienteRepository.save(paciente));
     }
