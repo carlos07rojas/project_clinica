@@ -114,7 +114,7 @@
                 >
                   {{ pac.nombre.charAt(0) }}{{ pac.apellido.charAt(0) }}
                 </div>
-                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}</p>                
+                <p class="font-medium text-gray-800">{{ pac.nombre }} {{ pac.apellido }}</p>
               </div>
             </td>
             <!-- dni -->
@@ -367,8 +367,8 @@
           ✕
         </button>
       </div>
-
       <div class="px-6 py-4 space-y-4">
+        <!-- editar telefono -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
           <input
@@ -380,6 +380,17 @@
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        <!-- edutar gmail -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"> Email </label>
+          <input
+            type="email"
+            [(ngModel)]="emailEditar"
+            placeholder="Ej: paciente@gmail.com"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <!-- editar direccion -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
           <input

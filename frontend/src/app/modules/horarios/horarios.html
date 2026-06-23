@@ -81,13 +81,13 @@
             </td>
 
             <!-- hora inicio -->
-            <td class="px-6 py-4 text-gray-700 font-mono text-sm">
-              {{ h.horaInicio.slice(0, 5) }}
+            <td class="px-6 py-4 text-gray-700 text-sm">
+              {{ formatearHora(h.horaInicio) }}
             </td>
 
             <!-- hora fin -->
-            <td class="px-6 py-4 text-gray-700 font-mono text-sm">
-              {{ h.horaFin.slice(0, 5) }}
+            <td class="px-6 py-4 text-gray-700 text-sm">
+              {{ formatearHora(h.horaFin) }}
             </td>
 
             <!-- semana con indicador vigente/vencido -->

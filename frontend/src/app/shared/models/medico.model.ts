@@ -19,4 +19,5 @@ export interface MedicoResponse {
 
 export interface MedicoEditarRequest {
   telefono: string;
+  email: string;
 }

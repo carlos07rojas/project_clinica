@@ -37,6 +37,7 @@ export class Medicos implements OnInit {
 
   // datos de edicion
   telefonoEditar: string = '';
+  emailEditar: string = '';
 
   // especialdiad disponible para asignar al medico seleccionado
   especialidadesDispo: EspecialidadResponse[] = [];
@@ -295,6 +296,7 @@ export class Medicos implements OnInit {
   abrirModalEditar(medico: MedicoResponse): void {
     this.medicoSelecc = { ...medico, especialidades: [...(medico.especialidades || [])] };
     this.telefonoEditar = medico.telefono || '';
+    this.emailEditar = medico.email || '';
     this.especialidadesAQuitar = [];
     this.especialidadesAgregar = [];
 
@@ -353,18 +355,12 @@ export class Medicos implements OnInit {
         for (const idEsp of this.especialidadesAQuitar) {
           const relacion = relaciones.find((r: any) => Number(r.idEspecialidad) === Number(idEsp));
 
-          console.log('Buscando relacion para idEsp:', idEsp);
-          console.log('Relaciones disponibles:', relaciones);
-          console.log('Relacion encontrada:', relacion);
-
           if (relacion) {
             promesas.push(
               this.http
                 .patch(`${environment.apiUrl}/medico-especialidad/${relacion.id}/desactivar`, {})
                 .toPromise(),
             );
-          } else {
-            console.warn('No se encontró relación para especialidad:', idEsp);
           }
         }
 
@@ -385,6 +381,7 @@ export class Medicos implements OnInit {
           this.medicoService
             .editar(idMedico, {
               telefono: this.telefonoEditar,
+              email: this.emailEditar,
             })
             .toPromise(),
         );

@@ -9,6 +9,7 @@ import { NotificacionService } from '../../core/services/notificacion.service';
 import { PacienteRequest, PacienteResponse } from '../../shared/models/paciente.model';
 import { UsuarioResponse } from '../../shared/models/usuario.model';
 import { environment } from '../../../environments/environment';
+import { email } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-pacientes',
@@ -29,6 +30,7 @@ export class Pacientes implements OnInit {
   mostrarModalEditar: boolean = false;
   pacienteSelecc: PacienteResponse | null = null;
   telefonoEditar: string = '';
+  emailEditar: string = '';
   direccionEditar: string = '';
   cargando: boolean = false;
   mensaje: string = '';
@@ -246,6 +248,7 @@ export class Pacientes implements OnInit {
   abrirModalEditar(paciente: PacienteResponse): void {
     this.pacienteSelecc = paciente;
     this.telefonoEditar = paciente.telefono || '';
+    this.emailEditar = paciente.email || '';
     this.direccionEditar = paciente.direccion || '';
     this.mostrarModalEditar = true;
   }
@@ -261,7 +264,7 @@ export class Pacientes implements OnInit {
     this.http
       .patch<PacienteResponse>(
         `${environment.apiUrl}/pacientes/${this.pacienteSelecc.idPaciente}/editar`,
-        { telefono: this.telefonoEditar, direccion: this.direccionEditar },
+        { telefono: this.telefonoEditar, direccion: this.direccionEditar, email: this.emailEditar },
       )
       .subscribe({
         next: (data) => {

@@ -246,6 +246,17 @@ export class Horarios implements OnInit {
     return fin >= hoy;
   }
 
+  formatearHora(hora: string): string {
+    if (!hora) return '';
+    const partes = hora.split(':');
+    let horas = parseInt(partes[0]);
+    const minutos = partes[1];
+    const periodo = horas >= 12 ? 'PM' : 'AM';
+    horas = horas % 12;
+    if (horas === 0) horas = 12;
+    return `${horas.toString().padStart(2, '0')}:${minutos} ${periodo}`;
+  }
+
   duplicarHorario(horario: HorarioResponse): void {
     const partesFin = horario.fechaFin.split('-');
     const fechaFin = new Date(
