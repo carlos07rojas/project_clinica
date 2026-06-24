@@ -121,6 +121,12 @@ public class HorarioCitasService {
         return convertirAResponseDTO(actualizado);
     }
 
+    public List<HorarioCitasResponseDTO> obtenerTodos() {
+        return horarioCitasRepository.findAll().stream()
+                .filter(h -> h.getActivo() && !h.getFechaFin().isBefore(LocalDate.now()))
+                .map(this::convertirAResponseDTO).collect(Collectors.toList());
+    }
+
     private HorarioCitasResponseDTO convertirAResponseDTO(HorarioCitas h) {
         HorarioCitasResponseDTO dto = new HorarioCitasResponseDTO();
         dto.setIdHorario(h.getIdHorario());

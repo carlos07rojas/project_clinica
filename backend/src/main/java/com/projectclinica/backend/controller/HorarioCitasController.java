@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/horarios")
 public class HorarioCitasController {
@@ -28,11 +27,17 @@ public class HorarioCitasController {
     public ResponseEntity<HorarioCitasResponseDTO> crear(@RequestBody HorarioCitasRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(horarioCitasService.crearHorario(dto));
     }
-    
-     // para poder ver todos los horarios de un médico específico
+
+    // para poder ver todos los horarios de un médico específico
     @GetMapping("/medico/{idMedico}")
     public ResponseEntity<List<HorarioCitasResponseDTO>> obtenerPorMedico(@PathVariable Integer idMedico) {
         return ResponseEntity.ok(horarioCitasService.ObtenerPorMedico(idMedico));
+    }
+
+    // para traer todos los horarios vigentes y activos
+    @GetMapping
+    public ResponseEntity<List<HorarioCitasResponseDTO>> obtenerTodos() {
+        return ResponseEntity.ok(horarioCitasService.obtenerTodos());
     }
 
     @PatchMapping("/{id}/desactivar")
