@@ -27,6 +27,10 @@ public class HorarioCitas {
     @JoinColumn(name = "id_medico", nullable = false)
     private Medico medico;
 
+    @ManyToOne
+    @JoinColumn(name = "id_especialidad", nullable = false)
+    private Especialidad especialidad;
+
     @Column(name = "dia_semana", nullable = false)
     private Integer diaSemana;
 

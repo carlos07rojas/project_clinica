@@ -2,8 +2,10 @@ package com.projectclinica.backend.service;
 
 import com.projectclinica.backend.dto.HorarioCitasRequestDTO;
 import com.projectclinica.backend.dto.HorarioCitasResponseDTO;
+import com.projectclinica.backend.model.Especialidad;
 import com.projectclinica.backend.model.HorarioCitas;
 import com.projectclinica.backend.model.Medico;
+import com.projectclinica.backend.repository.EspecialidadRepository;
 import com.projectclinica.backend.repository.HorarioCitasRepository;
 import com.projectclinica.backend.repository.MedicoRepository;
 import org.springframework.stereotype.Service;
@@ -16,11 +18,13 @@ import java.util.stream.Collectors;
 public class HorarioCitasService {
     private final HorarioCitasRepository horarioCitasRepository;
     private final MedicoRepository medicoRepository;
+    private final EspecialidadRepository especialidadRepository;
 
     public HorarioCitasService(HorarioCitasRepository horarioCitasRepository,
-            MedicoRepository medicoRepository) {
+            MedicoRepository medicoRepository, EspecialidadRepository especialidadRepository) {
         this.horarioCitasRepository = horarioCitasRepository;
         this.medicoRepository = medicoRepository;
+        this.especialidadRepository = especialidadRepository;
     }
 
     // Crear usuario
@@ -69,8 +73,24 @@ public class HorarioCitasService {
                     "El médico ya tiene un horario registrado ese día para esa semana");
         }
 
+        // verificar que la especialidad exista y este activa
+        Especialidad especialidad = especialidadRepository.findById(dto.getIdEspecialidad())
+                .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
+        if (!especialidad.getActivo()) {
+            throw new RuntimeException("La especialidad esta desactivada");
+        }
+
+        // verificar que el medico tenga esa especialidad
+        boolean medicoTieneEspecialidad = medico.getEspecialidades().stream()
+                .anyMatch(me -> me.getActivo()
+                        && me.getEspecialidad().getIdEspecialidad().equals(dto.getIdEspecialidad()));
+        if (!medicoTieneEspecialidad) {
+            throw new RuntimeException("El medico no tiene asignado esa especialidad");
+        }
+
         HorarioCitas horario = new HorarioCitas();
         horario.setMedico(medico);
+        horario.setEspecialidad(especialidad);
         horario.setDiaSemana(dto.getDiaSemana());
         horario.setHoraInicio(dto.getHoraInicio());
         horario.setHorarioFin(dto.getHoraFin());
@@ -111,6 +131,8 @@ public class HorarioCitasService {
         dto.setHoraFin(h.getHorarioFin());
         dto.setFechaInicio(h.getFechaInicio());
         dto.setFechaFin(h.getFechaFin());
+        dto.setIdEspecialidad(h.getEspecialidad().getIdEspecialidad());
+        dto.setNombreEspecialidad(h.getEspecialidad().getNombre());
         dto.setActivo(h.getActivo());
         return dto;
     }

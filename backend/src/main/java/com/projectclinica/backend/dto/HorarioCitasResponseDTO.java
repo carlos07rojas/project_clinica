@@ -9,6 +9,8 @@ import java.time.LocalTime;
 public class HorarioCitasResponseDTO {
     private Integer idHorario;
     private Integer idMedico;
+    private Integer idEspecialidad;
+    private String nombreEspecialidad;
     private String nombreMedico;
     private Integer diaSemana;
     private LocalDate fechaInicio;
