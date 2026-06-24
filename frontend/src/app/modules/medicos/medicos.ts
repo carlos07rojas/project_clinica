@@ -6,6 +6,7 @@ import { MedicoService } from '../../core/services/medico.service';
 import { EspecialidadService } from '../../core/services/especialidad.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { NotificacionService } from '../../core/services/notificacion.service';
+import { ColorService } from '../../core/services/color.service';
 import { MedicoRequest, MedicoResponse } from '../../shared/models/medico.model';
 import { EspecialidadResponse } from '../../shared/models/especialidad.model';
 import { UsuarioResponse } from '../../shared/models/usuario.model';
@@ -74,11 +75,15 @@ export class Medicos implements OnInit {
     private especialidadService: EspecialidadService,
     private usuarioService: UsuarioService,
     private notificacionService: NotificacionService,
+    public colorService: ColorService,
     private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
     this.cargarMedicos();
+    this.especialidadService.obtenerActivas().subscribe({
+      next: (data) => this.colorService.setEspecialidades(data),
+    });
   }
 
   cargarMedicos(): void {

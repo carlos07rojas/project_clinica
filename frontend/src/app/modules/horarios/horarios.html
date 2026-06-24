@@ -24,11 +24,9 @@
       @for (m of medicos; track m.idMedico) {
         <option [value]="m.idMedico">
           Dr. {{ m.nombre }} {{ m.apellido }}
-          {{
-            m.especialidades && m.especialidades.length > 0
-              ? ' - ' + m.especialidades[0].nombre
-              : ''
-          }}
+          @if (m.especialidades && m.especialidades.length > 0) {
+            - {{ m.especialidades[0].nombre }}
+          }
         </option>
       }
     </select>
@@ -40,6 +38,7 @@
       <thead>
         <tr class="border-b border-gray-200">
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Médico</th>
+          <th class="text-left px-6 py-4 text-gray-500 font-medium">Especialidad</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Fecha</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Hora de Inicio</th>
           <th class="text-left px-6 py-4 text-gray-500 font-medium">Hora de Fin</th>
@@ -54,8 +53,8 @@
             <td colspan="6" class="text-center py-10 text-gray-400">Cargando...</td>
           </tr>
         }
+        <!-- fila con opacidad si el horario está vencido -->
         @for (h of horarios; track h.idHorario) {
-          <!-- fila con opacidad si el horario está vencido -->
           <tr
             [class]="
               esHorarioVigente(h.fechaFin)
@@ -73,6 +72,13 @@
                 </div>
                 <span class="font-medium text-gray-800 text-sm"> Dr. {{ h.nombreMedico }} </span>
               </div>
+            </td>
+
+            <!-- especialidad con color -->
+            <td class="px-6 py-4">
+              <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                {{ h.nombreEspecialidad }}
+              </span>
             </td>
 
             <!-- día -->
@@ -145,7 +151,7 @@
         }
         @if (horarios.length === 0 && !cargando) {
           <tr>
-            <td colspan="6" class="text-center py-10 text-gray-400">
+            <td colspan="8" class="text-center py-10 text-gray-400">
               @if (medicoFiltro === 0) {
                 Selecciona un médico para ver sus horarios
               } @else {
@@ -175,22 +181,54 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Médico</label>
           <select
             [(ngModel)]="nuevoHorario.idMedico"
+            (ngModelChange)="onMedicoChangeModal()"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option [value]="0">Selecciona un médico</option>
             @for (m of medicos; track m.idMedico) {
-              <option [value]="m.idMedico">
-                Dr. {{ m.nombre }} {{ m.apellido }}
-                {{
-                  m.especialidades && m.especialidades.length > 0
-                    ? ' — ' + m.especialidades[0].nombre
-                    : ''
-                }}
-              </option>
+              <option [value]="m.idMedico">Dr. {{ m.nombre }} {{ m.apellido }}</option>
             }
           </select>
         </div>
-        <!-- selector del dia -->
+
+        <!-- selector de especialidad del médico -->
+        @if (especialidadesMedico.length > 0) {
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"> Especialidad * </label>
+            <div class="grid grid-cols-2 gap-2">
+              @for (esp of especialidadesMedico; track esp.idEspecialidad) {
+                <button
+                  type="button"
+                  (click)="nuevoHorario.idEspecialidad = esp.idEspecialidad"
+                  [style.borderColor]="
+                    nuevoHorario.idEspecialidad === esp.idEspecialidad
+                      ? colorService.getColor(esp.idEspecialidad)
+                      : ''
+                  "
+                  [style.backgroundColor]="
+                    nuevoHorario.idEspecialidad === esp.idEspecialidad
+                      ? colorService.getFondo(esp.idEspecialidad)
+                      : ''
+                  "
+                  [style.color]="
+                    nuevoHorario.idEspecialidad === esp.idEspecialidad
+                      ? colorService.getColor(esp.idEspecialidad)
+                      : ''
+                  "
+                  [class]="
+                    nuevoHorario.idEspecialidad === esp.idEspecialidad
+                      ? 'px-3 py-2 rounded-lg text-xs font-medium border-2 transition-all'
+                      : 'px-3 py-2 rounded-lg text-xs border border-gray-300 text-gray-600 hover:border-gray-400 transition-all'
+                  "
+                >
+                  {{ esp.nombre }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- selector del fecha -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de inicio</label>
           <input
