@@ -48,7 +48,7 @@ public class HorarioCitasService {
         // la fecha de inicio no puede ser en el pasado
         if (dto.getFechaInicio().isBefore(LocalDate.now())) {
             throw new RuntimeException(
-                    "La fecha de inicio no puede ser en el pasado");
+                    "La fecha debe ser despues de la fecha actual");
         }
 
         // la fecha debe corresponder al día de semana seleccionado
