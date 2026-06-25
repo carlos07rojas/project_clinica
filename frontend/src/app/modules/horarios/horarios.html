@@ -234,17 +234,15 @@
             [(ngModel)]="nuevoHorario.fechaInicio"
             (ngModelChange)="onFechaChange()"
             [min]="fechaMinima"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [max]="fechaMaxima"
+            [disabled]="nuevoHorario.idMedico === 0"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
           />
-
-          <!-- muestra el día detectado automáticamente -->
-          @if (nombreDiaSeleccionado) {
-            <div
-              class="flex items-center gap-2 mt-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
-            >
-              <span class="text-blue-500 text-sm">📅</span>
-              <p class="text-sm text-blue-700">Este horario solo se aplicará por esta semana</p>
-            </div>
+          @if (nuevoHorario.idMedico !== 0) {
+            <p class="text-xs text-gray-400 mt-1">
+              Disponible del {{ fechaMinima | date: 'dd/MM' }} al
+              {{ fechaMaxima | date: 'dd/MM/yyyy' }}
+            </p>
           }
         </div>
 
@@ -289,6 +287,248 @@
           class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
         >
           Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- separador entre tabla y calendario -->
+<div class="mt-8 mb-6 flex items-center gap-4">
+  <div class="flex-1 border-t border-gray-200"></div>
+  <h2 class="text-lg font-semibold text-gray-700 flex items-center gap-2">Calendario Semanal</h2>
+  <div class="flex-1 border-t border-gray-200"></div>
+</div>
+
+<!-- calendiario semana -->
+<div class="mt-8">
+  <!-- tarjeta de resumen -->
+
+  <div class="grid grid-cols-3 gap-3 mb-4">
+    <!-- tarjeta de medicos -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-sm text-gray-500">Médicos con turno</p>
+      <p class="text-2x1 font-bold text-gray-800 mt-1">
+        {{ getMedicosUnicos() }}
+      </p>
+      <p class="text-xs text-gray-400 mt-1">esta semana</p>
+    </div>
+    <!-- tarjeta turnos esta semana -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-sm text-gray-500">Turnos registrados</p>
+      <p class="text-2x1 font-bold text-gray-800 mt-1">
+        {{ getTurnosSemana() }}
+      </p>
+      <p class="text-xs text-gray-400 mt-1">lun → dom</p>
+    </div>
+    <!-- tarjeta de especialidades -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-sm text-gray-500">Especialidades</p>
+      <p class="text-2x1 font-bold text-gray-800 mt-1">
+        {{ getEspecialidadesSemana().length }}
+      </p>
+      <p class="text-xs text-gray-400 mt-1">en rotacion</p>
+    </div>
+  </div>
+
+  <!-- encabezado del calendario -->
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-3">
+      <button
+        (click)="semanaAnterior()"
+        class="border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+      >
+        ‹
+      </button>
+      <div>
+        <p class="text-base font-medium text-gray-800">
+          {{ getLabelSemana() }}
+        </p>
+        <p class="text-xs text-gray-400">Vista de turnos por especialidad</p>
+      </div>
+      <button
+        (click)="semanaSiguiente()"
+        class="border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+      >
+        ›
+      </button>
+      <button
+        (click)="irSemanaActual()"
+        class="border border-blue-300 text-blue-600 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 transition-colors"
+      >
+        Hoy
+      </button>
+    </div>
+    <!-- leyenda de especialidades -->
+    <div class="flex gap-3 flex-wrap justify-end">
+      @for (esp of getEspecialidadesSemana(); track esp.id) {
+        <div class="flex items-center gap-1.5">
+          <div
+            class="w-2.5 h-2.5 rounded-full"
+            [style.backgroundColor]="colorService.getColor(esp.id)"
+          ></div>
+          <span class="text-xs text-gray-500">
+            {{ esp.nombre }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+  <!-- grio del calendario -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div
+      class="grid border-b border-gray-200"
+      style="grid-template-columns: 52px repeat(7, minmax(0, 1fr))"
+    >
+      <!-- esquina vacia -->
+      <div class="bg-gray-50 border-r border-gray-200 p-2"></div>
+      <!-- encabezado de dias - clic abre modal -->
+      @for (dia of diasCalendario; track dia.toDateString()) {
+        <div
+          (click)="abrirModalDia(dia)"
+          [class]="
+            getHorariosDia(dia).length > 0
+              ? 'border-r border-gray-200 p-2 text-center cursor-pointer hover:bg-gray-50 transition-colors'
+              : 'border-r border-gray-200 p-2 text-center'
+          "
+        >
+          <p class="text-xs font-medium text-gray-500 uppercase">
+            {{ dia.toLocaleDateString('es-PE', { weekday: 'short' }) }}
+          </p>
+          <div
+            [class]="
+              esHoy(dia)
+                ? 'w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium mx-auto mt-1'
+                : 'text-sm font-medium text-gray-700 mt-1 text-center'
+            "
+          >
+            {{ dia.getDate() }}
+          </div>
+          @if (getHorariosDia(dia).length > 0) {
+            <div class="flex justify-center gap-0.5 mt-1">
+              @for (h of getHorariosDia(dia).slice(0, 4); track h.idHorario) {
+                <div
+                  class="w-1.5 h-1.5 rounded-full"
+                  [style.backgroundColor]="colorService.getColor(h.idEspecialidad)"
+                ></div>
+              }
+              @if (getHorariosDia(dia).length > 4) {
+                <span class="text-xs text-gray-400"> +{{ getHorariosDia(dia).length - 4 }} </span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- filas AM y PM -->
+    @for (turno of ['AM', 'PM']; track turno) {
+      <div
+        class="grid border-b border-gray-100 last:border-0"
+        style="grid-template-columns: 52px repeat(7, minmax(0, 1fr))"
+      >
+        <!-- label AM/PM -->
+        <div class="bg-gray-50 border-r border-gray-200 flex items-center justify-end px-2 py-3">
+          <span class="text-xs text-gray-400 font-medium">
+            {{ turno }}
+          </span>
+        </div>
+        <!-- celdas por dia -->
+        @for (dia of diasCalendario; track dia.toDateString()) {
+          <div class="border-r border-gray-100 p-1.5 min-h-16">
+            @for (
+              h of turno === 'AM' ? getHorariosDiaAM(dia) : getHorariosDiaPM(dia);
+              track h.idHorario
+            ) {
+              <div
+                class="rounded px-1.5 py-1 mb-1 boder-1-2 cursor-default"
+                [style.backgroundColor]="colorService.getFondo(h.idEspecialidad)"
+                [style.borderLeftColor]="colorService.getColor(h.idEspecialidad)"
+              >
+                <p
+                  class="text-xs font-medium leading-tight"
+                  [style.color]="colorService.getColor(h.idEspecialidad)"
+                >
+                  {{ formatearHora(h.horaInicio) }} - {{ formatearHora(h.horaFin) }}
+                </p>
+                <p
+                  class="text-xs leading-tight mt-0.5"
+                  [style.color]="colorService.getColor(h.idEspecialidad)"
+                  style="opacity: 0.75"
+                >
+                  Dr. {{ h.nombreMedico.split(' ')[0] }}
+                </p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+<!-- modal del medicos del dia -->
+@if (mostrarModalDia && diaSeleccionado) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800 capitalize">
+            {{ getLabelDia(diaSeleccionado) }}
+          </h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            {{ horariosDiaSelecc.length }} médico(s) de turno
+          </p>
+        </div>
+        <button
+          (click)="cerrarModalDia()"
+          class="text-gray-400 hover:text-gray-600 text-xl font-bold"
+        >
+          X
+        </button>
+      </div>
+      <div class="px-6 py-4 space-y-2">
+        @for (h of horariosDiaSelecc; track h.idHorario) {
+          <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-100">
+            <!-- avar con color de especialidad -->
+            <div
+              class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+              [style.backgroundColor]="colorService.getFondo(h.idEspecialidad)"
+              [style.color]="colorService.getColor(h.idEspecialidad)"
+            >
+              {{ h.nombreMedico.charAt(0) }}
+            </div>
+
+            <!-- info del medico -->
+            <div class="flex-1">
+              <p class="text-sm font-medium text-gray-800">Dr. {{ h.nombreMedico }}</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full"
+                  [style.backgroundColor]="colorService.getFondo(h.idEspecialidad)"
+                  [style.color]="colorService.getColor(h.idEspecialidad)"
+                >
+                  {{ h.nombreEspecialidad }}
+                </span>
+              </div>
+            </div>
+            <!-- horario -->
+            <div class="text-right flex-shrink-0">
+              <p class="text-sm font-medium text-gray-700">
+                {{ formatearHora(h.horaInicio) }}
+              </p>
+              <p class="text-xs text-gray-400">
+                {{ formatearHora(h.horaFin) }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="flex justify-center px-6 py-4 border-t border-gray-200">
+        <button
+          (click)="cerrarModalDia()"
+          class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+        >
+          Cerrar
         </button>
       </div>
     </div>

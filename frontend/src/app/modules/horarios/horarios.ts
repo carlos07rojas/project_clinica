@@ -31,8 +31,25 @@ export class Horarios implements OnInit {
   medicoFiltro: number = 0;
   // nombre del día detectado automáticamente al seleccionar la fecha del calendario
   nombreDiaSeleccionado: string = '';
-  // fecha mínima para el calendario, no se puede elegir fechas pasadas
-  fechaMinima: string = new Date().toISOString().split('T')[0];
+
+  // -------
+
+  // horarios de toda la clinica
+  horariosCalendario: HorarioResponse[] = [];
+  cargandoCalendario: boolean = false;
+
+  // semana actual que se mustra en el calenderia
+  semanaActual: Date = this.getLunesSemana(new Date());
+
+  // modal de medico del dia
+  mostrarModalDia: boolean = false;
+  diaSeleccionado: Date | null = null;
+  horariosDiaSelecc: HorarioResponse[] = [];
+
+  // dias de la semana para el calendario
+  diasCalendario: Date[] = [];
+
+  // --------
 
   // dias de la semana para mostrar en la tabla
   diaSemana: string[] = [
@@ -76,6 +93,10 @@ export class Horarios implements OnInit {
         this.colorService.setEspecialidades(data);
       },
     });
+
+    // inicializar el calendiario
+    this.generarDiasCalend();
+    this.cargarCalendario();
   }
 
   abrirModal(): void {
@@ -161,6 +182,30 @@ export class Horarios implements OnInit {
 
     // guardar el nombre del día para mostrarlo
     this.nombreDiaSeleccionado = this.diaSemana[this.nuevoHorario.diaSemana];
+  }
+
+  // fecha mínima para el calendario, no se puede elegir fechas pasadas
+  get fechaMinima(): string {
+    const hoy = new Date();
+    const diaJS = hoy.getDay();
+    // regresa al lunes de esa semana
+    const diff = diaJS === 0 ? -6 : 1 - diaJS;
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() + diff);
+    lunes.setHours(0, 0, 0, 0);
+    return lunes.toISOString().split('T')[0];
+  }
+
+  // el domungo de la siguiente noche
+  get fechaMaxima(): string {
+    const hoy = new Date();
+    const diasJS = hoy.getDay();
+    const diff = diasJS === 0 ? -6 : 1 - diasJS;
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() + diff);
+    const domingoSiguiente = new Date(lunes);
+    domingoSiguiente.setDate(lunes.getDate() + 13);
+    return domingoSiguiente.toISOString().split('T')[0];
   }
 
   proximasFechas: { fecha: string; label: string }[] = [];
@@ -249,6 +294,7 @@ export class Horarios implements OnInit {
         });
 
         this.notificacionService.exito('Horario creado correctamente');
+        this.cargarCalendario();
       },
       error: (err) => {
         this.notificacionService.error(err.error?.mensaje || 'Error al crear horario');
@@ -344,5 +390,178 @@ export class Horarios implements OnInit {
     horas = horas % 12;
     if (horas === 0) horas = 12;
     return `${horas.toString().padStart(2, '0')}:${minutos} ${periodo}`;
+  }
+
+  // ----------
+
+  // para obtener el lunes de la semana de una fecha dada
+  getLunesSemana(fecha: Date): Date {
+    const d = new Date(fecha);
+    const dia = d.getDay();
+    const diff = dia === 0 ? -6 : 1 - dia;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  // genera el array de 7 dias de la semana actual
+  generarDiasCalend(): void {
+    this.diasCalendario = [];
+    for (let i = 0; i < 7; i++) {
+      const dia = new Date(this.semanaActual);
+      dia.setDate(this.semanaActual.getDate() + i);
+      this.diasCalendario.push(dia);
+    }
+  }
+
+  // para cargar todos los horarios para el calendario
+  cargarCalendario(): void {
+    this.cargandoCalendario = true;
+    this.horarioService.obtenerTodos().subscribe({
+      next: (data) => {
+        this.horariosCalendario = data;
+        this.cargandoCalendario = false;
+      },
+      error: () => {
+        this.notificacionService.error('Error al cargar calendario');
+        this.cargandoCalendario = false;
+      },
+    });
+  }
+
+  // para navegar a la semana anterior
+  semanaAnterior(): void {
+    const nueva = new Date(this.semanaActual);
+    nueva.setDate(nueva.getDate() - 7);
+    this.semanaActual = nueva;
+    this.generarDiasCalend();
+  }
+
+  // para navegar a la semans siguiente
+  semanaSiguiente(): void {
+    const nueva = new Date(this.semanaActual);
+    nueva.setDate(nueva.getDate() + 7);
+    this.semanaActual = nueva;
+    this.generarDiasCalend();
+  }
+
+  // para ir a la semana actual
+  irSemanaActual(): void {
+    this.semanaActual = this.getLunesSemana(new Date());
+    this.generarDiasCalend();
+  }
+
+  // para obtener el label de la semana actual
+  getLabelSemana(): string {
+    const lunes = new Date(this.semanaActual);
+    const domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+
+    const diaLunes = lunes.getDate();
+    const diaDomingo = domingo.getDate();
+
+    const mesLunes = lunes.toLocaleDateString('es-PE', { month: 'long' });
+    const mesDomingo = domingo.toLocaleDateString('es-PE', { month: 'long' });
+    const añoLunes = lunes.getFullYear();
+    const añoDomingo = domingo.getFullYear();
+
+    // siempre mostrar el mes en ambas fechas
+    if (añoLunes === añoDomingo) {
+      return `${diaLunes} de ${mesLunes} – ${diaDomingo} de ${mesDomingo} de ${añoDomingo}`;
+    }
+
+    // años diferentes (semana dic-ene)
+    return `${diaLunes} de ${mesLunes} de ${añoLunes} – ${diaDomingo} de ${mesDomingo} de ${añoDomingo}`;
+  }
+
+  // verificar si es fecha de hoy
+  esHoy(fecha: Date): boolean {
+    const hoy = new Date();
+    return fecha.toDateString() === hoy.toDateString();
+  }
+
+  // para obtener los horarios de un dia especifico del calendario, se filtrara por diaSemana y verificara que este dentro del rango de inicio-fin
+  getHorariosDia(fecha: Date): HorarioResponse[] {
+    let diaSemana = fecha.getDay();
+    diaSemana = diaSemana === 0 ? 7 : diaSemana;
+
+    return this.horariosCalendario.filter((h) => {
+      if (h.diaSemana !== diaSemana) return false;
+      // para verificar que la fecha este dentro del rango
+      const partesFI = h.fechaInicio.split('-');
+      const fi = new Date(parseInt(partesFI[0]), parseInt(partesFI[1]) - 1, parseInt(partesFI[2]));
+      const partesFF = h.fechaFin.split('-');
+      const ff = new Date(parseInt(partesFF[0]), parseInt(partesFF[1]) - 1, parseInt(partesFF[2]));
+      const f = new Date(fecha);
+      f.setHours(0, 0, 0, 0);
+      return f >= fi && f <= ff && h.activo;
+    });
+  }
+
+  // para obtener horarios AM
+  getHorariosDiaAM(fecha: Date): HorarioResponse[] {
+    return this.getHorariosDia(fecha).filter((h) => {
+      const hora = parseInt(h.horaInicio.split(':')[0]);
+      return hora < 12;
+    });
+  }
+
+  // para obtener horarios PM
+  getHorariosDiaPM(fecha: Date): HorarioResponse[] {
+    return this.getHorariosDia(fecha).filter((h) => {
+      const hora = parseInt(h.horaInicio.split(':')[0]);
+      return hora >= 12;
+    });
+  }
+
+  // para contar medicos unicos con turno esta semana
+  getMedicosUnicos(): number {
+    const ids = new Set(
+      this.diasCalendario.flatMap((d) => this.getHorariosDia(d).map((h) => h.idMedico)),
+    );
+    return ids.size;
+  }
+
+  // para contar turnos totales de la semana
+  getTurnosSemana(): number {
+    return this.diasCalendario.reduce((total, d) => total + this.getHorariosDia(d).length, 0);
+  }
+
+  // para obtener especialidades unicas de la semana para la leyenda
+  getEspecialidadesSemana(): {
+    id: number;
+    nombre: string;
+  }[] {
+    const map = new Map<number, string>();
+    this.diasCalendario.forEach((d) => {
+      this.getHorariosDia(d).forEach((h) => {
+        map.set(h.idEspecialidad, h.nombreEspecialidad);
+      });
+    });
+    return Array.from(map.entries()).map(([id, nombre]) => ({ id, nombre }));
+  }
+
+  //------
+  abrirModalDia(fecha: Date): void {
+    const horarios = this.getHorariosDia(fecha);
+    if (horarios.length === 0) return;
+    this.diaSeleccionado = fecha;
+    this.horariosDiaSelecc = horarios;
+    this.mostrarModalDia = true;
+  }
+
+  cerrarModalDia(): void {
+    this.mostrarModalDia = false;
+    this.diaSeleccionado = null;
+    this.horariosDiaSelecc = [];
+  }
+
+  getLabelDia(fecha: Date): string {
+    return fecha.toLocaleDateString('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
   }
 }

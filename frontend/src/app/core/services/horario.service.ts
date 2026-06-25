@@ -28,4 +28,8 @@ export class HorarioService {
   obtenerPorMedico(idMedico: number): Observable<HorarioResponse[]> {
     return this.http.get<HorarioResponse[]>(`${this.url}/medico/${idMedico}`);
   }
+
+  obtenerTodos(): Observable<HorarioResponse[]> {
+    return this.http.get<HorarioResponse[]>(`${environment.apiUrl}/horarios`);
+  }
 }
