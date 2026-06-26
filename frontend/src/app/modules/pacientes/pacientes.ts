@@ -6,9 +6,12 @@ import { HttpClient } from '@angular/common/http';
 import { PacienteService } from '../../core/services/paciente.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { NotificacionService } from '../../core/services/notificacion.service';
+import { CitaService } from '../../core/services/cita.service';
+import { CitaResponse } from '../../shared/models/cita.model';
 import { PacienteRequest, PacienteResponse } from '../../shared/models/paciente.model';
 import { UsuarioResponse } from '../../shared/models/usuario.model';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 import { email } from '@angular/forms/signals';
 
 @Component({
@@ -24,7 +27,6 @@ export class Pacientes implements OnInit {
 
   // se muestra la lista de usuarios con rol pacientes para el selector
   usuarioPaciente: UsuarioResponse[] = [];
-
   mostrarModal: boolean = false;
   mostrarModalUsuario: boolean = false;
   mostrarModalEditar: boolean = false;
@@ -35,15 +37,20 @@ export class Pacientes implements OnInit {
   cargando: boolean = false;
   mensaje: string = '';
   esError: boolean = false;
-
   // texto para filtrar por nombre, que se usa para una busqueda local en tiempo real
   textoBusqueda: string = '';
-
   // esto permitira buscar directamente en el backend con el DNI
   dniBusqueda: string = '';
-
   // se mostrar cuando el paciente se haya encontrado
   pacienteEncontrado: PacienteResponse | null = null;
+
+  // ---------------
+
+  mostrarModalCitas: boolean = false;
+  pacienteCitas: CitaResponse[] = [];
+  cargandoCitas: boolean = false;
+
+  // ---------------
 
   // objeto del formulario para crear el paciente
   nuevoPaciente: PacienteRequest = {
@@ -67,7 +74,9 @@ export class Pacientes implements OnInit {
   constructor(
     private pacienteService: PacienteService,
     private usuarioService: UsuarioService,
+    private citaService: CitaService,
     private notificacionService: NotificacionService,
+    private router: Router,
     private http: HttpClient,
   ) {}
 
@@ -286,4 +295,53 @@ export class Pacientes implements OnInit {
       this.notificacionService.exito(texto);
     }
   }
+  // ----------------
+
+  // para ver las citas del paciente
+  verCitas(paciente: PacienteResponse): void {
+    this.pacienteSelecc = paciente;
+    this.mostrarModalCitas = true;
+    this.cargandoCitas = true;
+    this.pacienteCitas = [];
+    this.citaService.obtenerPorPaciente(paciente.idPaciente).subscribe({
+      next: (data) => {
+        // para mostrar las ultimas 5 ordenes por fecha
+        this.pacienteCitas = data
+          .sort((a, b) => new Date(b.fechaHora).getTime() - new Date(a.fechaHora).getTime())
+          .slice(0, 5);
+        this.cargandoCitas = false;
+      },
+      error: () => {
+        this.notificacionService.error('Error al cargar citas');
+        this.cargandoCitas = false;
+      },
+    });
+  }
+
+  cerrarModalCitas(): void {
+    this.mostrarModalCitas = false;
+    this.pacienteCitas = [];
+  }
+
+  // usamos localStorage para pasar el id entre pantallas
+  verHistorial(paciente: PacienteResponse): void {
+    localStorage.setItem('historialPacienteId', paciente.idPaciente.toString());
+    this.router.navigate(['/historial']);
+  }
+
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '-';
+    const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
+    const date = new Date(fechaLimpia);
+    if (isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  // ----------------
 }

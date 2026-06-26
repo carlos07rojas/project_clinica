@@ -26,6 +26,11 @@
         </tr>
       </thead>
       <tbody>
+        <!-- @if (cargando) {
+          <tr>
+            <td colspan="8" class="text-center py-10 text-gray-400">Cargando...</td>
+          </tr>
+        } -->
         @for (medico of medicos; track medico.idMedico) {
           <tr class="border-b border-gray-100 hover:bg-gray-50">
             <!-- medico - avatar con iniciales -->
@@ -242,7 +247,7 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Gmail</label>
           <input
             type="email"
             [(ngModel)]="nuevoUsuarioMedico.email"

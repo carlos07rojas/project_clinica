@@ -66,7 +66,17 @@ export class Historial implements OnInit {
 
   ngOnInit(): void {
     this.pacienteService.obtenerTodos().subscribe({
-      next: (data) => (this.pacientes = data),
+      next: (data) => {
+        this.pacientes = data;
+        // para verificar si viene del screen de pacientes
+        const idGuardado = localStorage.getItem('historialPacienteId');
+        if (idGuardado) {
+          this.pacienteFiltro = parseInt(idGuardado);
+          this.onPacienteChange();
+          // limpiar para que no se preseleccione en la proxima visita
+          localStorage.removeItem('historialPacienteId');
+        }
+      },
     });
   }
 
