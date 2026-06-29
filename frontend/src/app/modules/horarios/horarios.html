@@ -124,21 +124,22 @@
 
             <!-- acciones -->
             <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-3">
                 @if (esHorarioVigente(h.fechaFin) && h.activo) {
                   <button
                     (click)="desactivarHorario(h.idHorario)"
-                    class="text-red-500 hover:text-red-700 border border-red-200 px-3 py-1 rounded-lg text-xs transition-colors"
+                    class="text-gray-400 hover:text-red-600 transition-colors"
+                    title="Eliminar horario"
                   >
-                    Desactivar
+                    <ng-icon name="heroTrash" size="22"></ng-icon>
                   </button>
                 }
                 <button
                   (click)="duplicarHorario(h)"
-                  class="text-blue-500 hover:text-blue-700 border border-blue-200 px-3 py-1 rounded-lg text-xs transition-colors"
-                  title="Crear para próxima semana"
+                  class="text-gray-400 hover:text-blue-600 transition-colors"
+                  title="Crear para proxima semana"
                 >
-                  + Próxima semana
+                  <ng-icon name="heroArrowPath" size="22"></ng-icon>
                 </button>
               </div>
             </td>

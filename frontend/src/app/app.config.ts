@@ -21,6 +21,9 @@ import {
   heroNoSymbol,
   heroPencilSquare,
   heroAcademicCap,
+  heroArrowPath,
+  heroTrash,
+  heroArrowUturnLeft,
 } from '@ng-icons/heroicons/outline';
 
 export const appConfig: ApplicationConfig = {
@@ -47,6 +50,9 @@ export const appConfig: ApplicationConfig = {
       heroNoSymbol,
       heroPencilSquare,
       heroAcademicCap,
+      heroArrowPath, 
+      heroTrash,
+      heroArrowUturnLeft,
     }),
   ],
 };
