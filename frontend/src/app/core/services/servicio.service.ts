@@ -12,6 +12,7 @@ export interface ServicioResponse {
   duracionMin: number;
   idEspecialidad: number;
   nombreEspecialidad: string;
+  totalCitas: number;
   activo: boolean;
 }
 
@@ -21,6 +22,13 @@ export interface ServicioRequest {
   precio: number;
   duracionMin: number;
   idEspecialidad: number;
+}
+
+export interface ServicioEditarRequest {
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  duracionMin: number;
 }
 
 @Injectable({
@@ -44,6 +52,14 @@ export class ServicioService {
 
   crear(data: ServicioRequest): Observable<ServicioResponse> {
     return this.http.post<ServicioResponse>(this.url, data);
+  }
+
+  editar(id: number, data: ServicioEditarRequest): Observable<ServicioResponse> {
+    return this.http.patch<ServicioResponse>(`${this.url}/${id}/editar`, data);
+  }
+
+  reactivar(id: number): Observable<ServicioResponse> {
+    return this.http.patch<ServicioResponse>(`${this.url}/${id}/reactivar`, {});
   }
 
   desactivar(id: number): Observable<ServicioResponse> {
