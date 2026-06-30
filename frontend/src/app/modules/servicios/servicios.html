@@ -12,24 +12,38 @@
     </button>
   </div>
 
-  <!-- filtros -->
-  <div
-    class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 flex gap-4 items-end flex-grap"
-  >
+  <!-- barra de busqueda -->
+  <div class="flex gap-4 mb-4">
     <!-- busqueda por nombre -->
-    <div class="flex-1 min-w-48">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+    <div class="flex-2 relative">
       <input
         type="text"
         [(ngModel)]="busqueda"
-        placeholder="Buscar servicio..."
-        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Buscar servicios..."
+        class="w-full border border-gray-300 rounded-lg pl-4 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
       />
     </div>
+    <!-- bosqueda por especialidad -->
+    <select
+      [(ngModel)]="filtroEspecialidad"
+      class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-48"
+    >
+      <option [value]="0">Todas las especialidades</option>
+      @for (esp of especialidades; track esp.idEspecialidad) {
+        <option [value]="esp.idEspecialidad">
+          {{ esp.nombre }}
+        </option>
+      }
+    </select>
   </div>
 
   <!-- tabla -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+      <span class="text-xs text-gray-500">
+        {{ serviciosFiltrados.length }} de {{ servicios.length }} servicios
+      </span>
+    </div>
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b border-gray-200">
@@ -45,7 +59,7 @@
       <tbody>
         @if (cargando) {
           <tr>
-            <td colspan="6" class="text-center py-10 text-gray-400">Cargando...</td>
+            <td colspan="8" class="text-center py-10 text-gray-400">Cargando...</td>
           </tr>
         }
         @for (srv of servicios; track srv.idServicio) {
@@ -132,7 +146,7 @@
         }
         @if (servicios.length === 0 && !cargando) {
           <tr>
-            <td colspan="6" class="text-center py-10 text-gray-400">
+            <td colspan="8" class="text-center py-10 text-gray-400">
               No hay servicios registrados
             </td>
           </tr>

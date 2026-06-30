@@ -49,6 +49,8 @@ export class Horarios implements OnInit {
   // dias de la semana para el calendario
   diasCalendario: Date[] = [];
 
+  busquedaMedico: string = '';
+
   // --------
 
   // dias de la semana para mostrar en la tabla
@@ -393,6 +395,16 @@ export class Horarios implements OnInit {
   }
 
   // ----------
+
+  get medicosFiltrados(): MedicoResponse[] {
+    if (!this.busquedaMedico.trim()) {
+      return this.medicos;
+    }
+    const texto = this.busquedaMedico.toLowerCase();
+    return this.medicos.filter(
+      (m) => m.nombre.toLowerCase().includes(texto) || m.apellido.toLowerCase().includes(texto),
+    );
+  }
 
   // para obtener el lunes de la semana de una fecha dada
   getLunesSemana(fecha: Date): Date {

@@ -27,7 +27,7 @@ export class Medicos implements OnInit {
   especialidades: EspecialidadResponse[] = [];
   // lista de usuario con rol en este caso MEDICOS para el selector del modal
   usuariosMedico: UsuarioResponse[] = [];
-
+  cargando: boolean = false;
   mostrarModal: boolean = false;
   mostrarModalUsuario: boolean = false;
   mostrarModalEditar: boolean = false;
@@ -87,11 +87,16 @@ export class Medicos implements OnInit {
   }
 
   cargarMedicos(): void {
+    this.cargando = true;
     this.medicoService.obtenerTodos().subscribe({
       next: (data) => {
         this.medicos = [...data];
+        this.cargando = false;
       },
-      error: () => this.notificacionService.error('Error al cargar medicos'),
+      error: () => {
+        this.notificacionService.error('Error al cargar médicos');
+        this.cargando = false;
+      },
     });
   }
 
