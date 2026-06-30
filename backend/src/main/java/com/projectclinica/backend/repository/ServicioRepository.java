@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ServicioRepository 
-    extends JpaRepository<Servicio, Integer>{
+public interface ServicioRepository
+        extends JpaRepository<Servicio, Integer> {
 
     List<Servicio> findByActivoTrue();
 
@@ -18,4 +18,6 @@ public interface ServicioRepository
     List<Servicio> findActivosPorEspecialidad(@Param("idEspecialidad") Integer idEspecialidad);
 
     boolean existsByNombre(String nombre);
+
+    boolean existsByNombreAndIdServicioNot(String nombre, Integer idServicio);
 }

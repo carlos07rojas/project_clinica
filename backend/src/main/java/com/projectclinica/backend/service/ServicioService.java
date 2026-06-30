@@ -1,9 +1,11 @@
 package com.projectclinica.backend.service;
 
+import com.projectclinica.backend.dto.ServicioEditarDTO;
 import com.projectclinica.backend.dto.ServicioRequestDTO;
 import com.projectclinica.backend.dto.ServicioResponseDTO;
 import com.projectclinica.backend.model.Especialidad;
 import com.projectclinica.backend.model.Servicio;
+import com.projectclinica.backend.repository.CitaRepository;
 import com.projectclinica.backend.repository.EspecialidadRepository;
 import com.projectclinica.backend.repository.MedicoEspecialidadRepository;
 import com.projectclinica.backend.repository.ServicioRepository;
@@ -14,12 +16,14 @@ import java.util.stream.Collectors;
 @Service
 public class ServicioService {
     private final ServicioRepository servicioRepository;
+    private final CitaRepository citaRepository;
     private final EspecialidadRepository especialidadRepository;
     private final MedicoEspecialidadRepository medicoEspecialidadRepository;
 
-    public ServicioService(ServicioRepository servicioRepository,
+    public ServicioService(ServicioRepository servicioRepository, CitaRepository citaRepository,
             EspecialidadRepository especialidadRepository, MedicoEspecialidadRepository medicoEspecialidadRepository) {
         this.servicioRepository = servicioRepository;
+        this.citaRepository = citaRepository;
         this.especialidadRepository = especialidadRepository;
         this.medicoEspecialidadRepository = medicoEspecialidadRepository;
     }
@@ -40,7 +44,7 @@ public class ServicioService {
         if (medicosActivos == 0) {
             throw new RuntimeException("No hay médicos disponibles para esta especialidad");
         }
-        
+
         // verificar el doplicado
         if (servicioRepository.existsByNombre(dto.getNombre())) {
             throw new RuntimeException("Ya existe un servicio con ese nombre");
@@ -66,6 +70,50 @@ public class ServicioService {
 
         Servicio guardado = servicioRepository.save(servicio);
         return convertirAResponseDTO(guardado);
+    }
+
+    public ServicioResponseDTO editarServicio(Integer id, ServicioEditarDTO dto) {
+        Servicio servicio = servicioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Servicio con id: " + id + " no encontrado"));
+        if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
+            // para veridica que el nombre no este en uso por otro servicio
+            if (servicioRepository.existsByNombreAndIdServicioNot(dto.getNombre(), id)) {
+                throw new RuntimeException("Ya existe un servicio con este nombre");
+            }
+            servicio.setNombre(dto.getNombre());
+        }
+        if (dto.getDescripcion() != null) {
+            servicio.setDescripcion(dto.getDescripcion());
+        }
+        if (dto.getPrecio() != null) {
+            servicio.setPrecio(dto.getPrecio());
+        }
+        if (dto.getDuracionMin() != null) {
+            servicio.setDuracionMin(dto.getDuracionMin());
+        }
+        return convertirAResponseDTO(servicioRepository.save(servicio));
+    }
+
+    public ServicioResponseDTO reactivarServicio(Integer id) {
+        Servicio servicio = servicioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        if (servicio.getActivo()) {
+            throw new RuntimeException("El servicio ya esta activo");
+        }
+        // para verificar que la especialidad siga activa
+        if (!servicio.getEspecialidad().getActivo()) {
+            throw new RuntimeException(
+                    "No se puede reactvar, especialidad " + servicio.getEspecialidad().getNombre() + " ya activa");
+        }
+        // para verificar que haya medicos activos
+        long medicosActivos = medicoEspecialidadRepository
+                .contarMedicosActivos(servicio.getEspecialidad().getIdEspecialidad());
+        if (medicosActivos == 0) {
+            throw new RuntimeException(
+                    "No hay medicos acticos en la especialidad" + servicio.getEspecialidad().getNombre());
+        }
+        servicio.setActivo(true);
+        return convertirAResponseDTO(servicioRepository.save(servicio));
     }
 
     // obtener servicios activos por especialidad
@@ -103,6 +151,7 @@ public class ServicioService {
         dto.setDuracionMin(s.getDuracionMin());
         dto.setIdEspecialidad(s.getEspecialidad().getIdEspecialidad());
         dto.setNombreEspecialidad(s.getEspecialidad().getNombre());
+        dto.setTotalCitas(citaRepository.contarPorServicio(s.getIdServicio()));
         dto.setActivo(s.getActivo());
         return dto;
     }

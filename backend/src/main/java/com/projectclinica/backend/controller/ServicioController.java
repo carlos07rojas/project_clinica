@@ -1,5 +1,6 @@
 package com.projectclinica.backend.controller;
 
+import com.projectclinica.backend.dto.ServicioEditarDTO;
 import com.projectclinica.backend.dto.ServicioRequestDTO;
 import com.projectclinica.backend.dto.ServicioResponseDTO;
 import com.projectclinica.backend.service.ServicioService;
@@ -39,6 +40,17 @@ public class ServicioController {
     @GetMapping
     public ResponseEntity<List<ServicioResponseDTO>> obtenerTodos() {
         return ResponseEntity.ok(servicioService.obtenerTodos());
+    }
+
+    @PatchMapping("/{id}/editar")
+    public ResponseEntity<ServicioResponseDTO> editar(
+            @PathVariable Integer id, @RequestBody ServicioEditarDTO dto) {
+        return ResponseEntity.ok(servicioService.editarServicio(id, dto));
+    }
+
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ServicioResponseDTO> reactivar(@PathVariable Integer id) {
+        return ResponseEntity.ok(servicioService.reactivarServicio(id));
     }
 
     @PatchMapping("/{id}/desactivar")

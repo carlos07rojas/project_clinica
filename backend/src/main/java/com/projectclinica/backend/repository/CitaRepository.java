@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface CitaRepository 
-    extends JpaRepository<Cita, Integer>{
-    
+public interface CitaRepository
+        extends JpaRepository<Cita, Integer> {
+
     // Trae citas de un paciente en especifico
     @Query("SELECT c FROM Cita c WHERE c.paciente.idPaciente = :idPaciente")
-    List<Cita> findByPacienteId(@Param("idPaciente")Integer idPaciente);
+    List<Cita> findByPacienteId(@Param("idPaciente") Integer idPaciente);
 
     // Trae citas de un medico en especifico
     @Query("SELECT c FROM Cita c WHERE c.medico.idMedico = :idMedico")
@@ -22,10 +22,14 @@ public interface CitaRepository
 
     // Trae citas por estado (PENDIENTE, CONFIRMADA, etc.)
     List<Cita> findByEstado(String estado);
-    
+
     /// verificar si un médico ya tiene cita en esa fecha
     @Query("SELECT COUNT(c) > 0 FROM Cita c WHERE c.medico.idMedico = :idMedico AND c.fechaHora = :fechaHora")
     boolean existeCitaEnHorario(
-        @Param("idMedico") Integer idMedico,
-        @Param("fechaHora") LocalDateTime fechaHora);
+            @Param("idMedico") Integer idMedico,
+            @Param("fechaHora") LocalDateTime fechaHora);
+
+    // para contar citas por servicio
+    @Query("SELECT COUNT(c) FROM Cita c WHERE c.servicio.idServicio = :idServicio")
+    long contarPorServicio(@Param("idServicio") Integer idServicio);
 }
