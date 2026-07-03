@@ -167,63 +167,90 @@
         </button>
       </div>
       <div class="px-6 py-4 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-          <input
-            type="text"
-            [(ngModel)]="nuevoServicio.nombre"
-            placeholder="Ejemplo: Consulta cardiologia "
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
-          <textarea
-            [(ngModel)]="nuevoServicio.descripcion"
-            placeholder="Descripcion del servicio"
-            rows="2"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
-        </div>
-        <!-- precio y duracion en la misma fila -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Precio (S/)</label>
-            <input
-              type="number"
-              [(ngModel)]="nuevoServicio.precio"
-              placeholder="0.00"
-              min="0"
-              step="0.50"
-              (blur)="nuevoServicio.precio = +nuevoServicio.precio.toFixed(2)"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Duracion (min)</label>
-            <input
-              type="number"
-              [(ngModel)]="nuevoServicio.duracionMin"
-              placeholder="30"
-              min="0"
-              step="5"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+        <!-- especialidad -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
-          <select
-            [(ngModel)]="nuevoServicio.idEspecialidad"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option [value]="0">Selecciona una especialidad</option>
-            @for (esp of especialidades; track esp.idEspecialidad) {
-              <option [value]="esp.idEspecialidad">
-                {{ esp.nombre }}
-              </option>
+          @if (!hayEspeciaActivas) {
+            <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+              No hay especialidades activas. Crea una especialidad con médicos asignados antes de
+              crear un servicio.
+            </div>
+          } @else {
+            <select
+              [(ngModel)]="especialidadModal"
+              (ngModelChange)="onEspecialidadModalChange()"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option [value]="0">Selecciona una especialidad</option>
+              @for (esp of especialidades; track esp.idEspecialidad) {
+                <option [value]="esp.idEspecialidad">
+                  {{ esp.nombre }}
+                </option>
+              }
+            </select>
+            @if (especialidadModal === 0) {
+              <p class="text-xs text-gray-400 mt-1">Selecciona una especialidad para continuar</p>
+            } @else {
+              <p class="text-xs text-green-600 mt-1 font-medium">✓ Especialidad seleccionada</p>
             }
-          </select>
+          }
+        </div>
+        <!--  -->
+        <div
+          [class]="
+            especialidadModal === 0 ? 'space-y-4 opacity-40 pointer-events-none' : 'space-y-4'
+          "
+        >
+          <!-- nombre -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoServicio.nombre"
+              placeholder="Ejemplo: Consulta cardiologia "
+              [disabled]="especialidadModal === 0"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+            />
+          </div>
+          <!-- descripcion -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
+            <textarea
+              [(ngModel)]="nuevoServicio.descripcion"
+              placeholder="Descripcion del servicio"
+              rows="2"
+              [disabled]="especialidadModal === 0"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-gray-50"
+            ></textarea>
+          </div>
+          <!-- precio y duracion en la misma fila -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Precio (S/)</label>
+              <input
+                type="number"
+                [(ngModel)]="nuevoServicio.precio"
+                placeholder="0.00"
+                min="0"
+                step="0.50"
+                [disabled]="especialidadModal === 0"
+                (blur)="nuevoServicio.precio = +nuevoServicio.precio.toFixed(2)"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-gray-50"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Duracion (min)</label>
+              <input
+                type="number"
+                [(ngModel)]="nuevoServicio.duracionMin"
+                placeholder="30"
+                min="0"
+                step="5"
+                [disabled]="especialidadModal === 0"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-gray-50"
+              />
+            </div>
+          </div>
         </div>
       </div>
       <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-200">

@@ -17,6 +17,6 @@ export interface CitaResponse {
   fechaHora: string;
   duracionMin: number;
   estado: string;
-  observacion: string;
+  observaciones: string;
   fechaCreacion: string;
 }

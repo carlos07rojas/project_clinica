@@ -33,6 +33,8 @@ export class Servicios implements OnInit {
   filtroEspecialidad: number = 0;
   busqueda: string = '';
 
+  especialidadModal: number = 0;
+
   editarServicio = {
     nombre: '',
     descripcion: '',
@@ -78,6 +80,7 @@ export class Servicios implements OnInit {
 
   abrirModal(): void {
     this.mostrarModal = true;
+    this.especialidadModal = 0;
     this.nuevoServicio = {
       nombre: '',
       descripcion: '',
@@ -93,6 +96,7 @@ export class Servicios implements OnInit {
 
   cerrarModal(): void {
     this.mostrarModal = false;
+    this.especialidadModal = 0;
   }
 
   crearServicio(): void {
@@ -150,6 +154,27 @@ export class Servicios implements OnInit {
         !this.busqueda || svr.nombre.toLowerCase().includes(this.busqueda.toLowerCase());
       return coincideEsp && coincideBusq;
     });
+  }
+
+  // para saber si hay especialdiades activas
+  get hayEspeciaActivas(): boolean {
+    return this.especialidades.length > 0;
+  }
+
+  // para cuando se cambien la especialdiad en el model
+  onEspecialidadModalChange(): void {
+    if (this.especialidadModal === 0) {
+      // para limpiar el formulario si se deselecciona
+      this.nuevoServicio = {
+        nombre: '',
+        descripcion: '',
+        precio: 0,
+        duracionMin: 0,
+        idEspecialidad: 0,
+      };
+      return;
+    }
+    this.nuevoServicio.idEspecialidad = this.especialidadModal;
   }
 
   abrirModalEditar(svr: ServicioResponse): void {

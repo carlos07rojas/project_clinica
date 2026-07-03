@@ -35,6 +35,9 @@ export class Citas implements OnInit {
   horariosMedico: HorarioResponse[] = [];
   horasDisponibles: string[] = [];
 
+  filtroPorFecha: string = '';
+  busquedaPaciente: string = '';
+
   diaSemana: string[] = [
     '',
     'Lunes',
@@ -130,14 +133,6 @@ export class Citas implements OnInit {
     });
   }
 
-  // filtrara las citas segun su estado, si filtroEstado esta vacio devuelve todas
-  get citasFiltradas(): CitaResponse[] {
-    if (!this.filtroEstado) {
-      return this.todasLasCitas;
-    }
-    return this.todasLasCitas.filter((c) => c.estado === this.filtroEstado);
-  }
-
   // cuenta las citas por estado para mostrarlo
   contarPorEstado(estado: string): number {
     return this.todasLasCitas.filter((c) => c.estado === estado).length;
@@ -203,7 +198,6 @@ export class Citas implements OnInit {
       this.nuevaCita.idServicio = 0;
       return;
     }
-
     // usar el endpoint de medico-especialidad
     this.http
       .get<
@@ -498,6 +492,49 @@ export class Citas implements OnInit {
     }
   }
 
+  // ------------
+
+  get citasFiltradas(): CitaResponse[] {
+    let resultado = this.todasLasCitas;
+    // para filtrar por estado
+    if (this.filtroEstado) {
+      resultado = resultado.filter((c) => c.estado === this.filtroEstado);
+    }
+    // para filtrar por fecha
+    if (this.filtroPorFecha) {
+      resultado = resultado.filter((c) => {
+        const fechaCita = c.fechaHora.split('T')[0];
+        return fechaCita === this.filtroPorFecha;
+      });
+    }
+    // para filtrar por nombre de paciente
+    if (this.busquedaPaciente.trim()) {
+      const texto = this.busquedaPaciente.toLowerCase();
+      resultado = resultado.filter((c) => c.nombrePaciente.toLowerCase().includes(texto));
+    }
+    return resultado.sort(
+      (a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime(),
+    );
+  }
+
+  filtrarHoy(): void {
+    const hoy = new Date();
+    this.filtroPorFecha = hoy.toISOString().split('T')[0];
+  }
+
+  limpiarFecha(): void {
+    this.filtroPorFecha = '';
+  }
+
+  getObservaciones(cita: CitaResponse): string {
+    return cita.observaciones?.trim() ? cita.observaciones : 'Sin observaciones';
+  }
+
+  get today(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  // ------------
   private mostrarMensaje(texto: string, esError: boolean): void {
     if (esError) {
       this.notificacionService.error(texto);

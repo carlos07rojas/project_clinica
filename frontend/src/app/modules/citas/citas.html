@@ -12,6 +12,63 @@
       + Agendar Cita
     </button>
   </div>
+  <!-- barra de busqueda y filtro por fecha -->
+  <div class="flex gap-3 mb-4 flex-wrap">
+    <!-- busque por paciente -->
+    <div class="flex-2 relative">
+      <input
+        type="text"
+        [(ngModel)]="busquedaPaciente"
+        placeholder="Buscar paciente..."
+        class="w-full border border-gray-300 rounded-lg pl-4 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+      />
+    </div>
+    <!-- filtro por fecha -->
+    <div class="flex gap-2 items-center">
+      <input
+        type="text"
+        [(ngModel)]="filtroPorFecha"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+      />
+      <button
+        (click)="filtrarHoy()"
+        [class]="
+          filtroPorFecha === today
+            ? 'bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium'
+            : 'border border-blue-300 text-blue-700 px-4 py-2 rounded-lg text-sm  transition-colors'
+        "
+      >
+        Hoy
+      </button>
+      @if (filtroPorFecha) {
+        <button
+          (click)="limpiarFecha()"
+          class="border border-gray-300 text-gray-500 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+        >
+          ✕
+        </button>
+      }
+    </div>
+  </div>
+  <div class="flex items-center justify-between mb-2">
+    <p class="text-xs text-gray-500">
+      {{ citasFiltradas.length }} cita(s)
+      @if (filtroPorFecha) {
+        para el {{ filtroPorFecha | date: 'dd/MM/yyyy' }}
+      }
+      @if (busquedaPaciente) {
+        de "{{ busquedaPaciente }}"
+      }
+    </p>
+    @if (filtroPorFecha || busquedaPaciente) {
+      <button
+        (click)="filtroPorFecha = ''; busquedaPaciente = ''"
+        class="text-xs text-blue-600 hover:text-blue-800"
+      >
+        Limpiar filtros
+      </button>
+    }
+  </div>
 
   <!-- filtros por estados -->
   <div class="flex gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
@@ -150,10 +207,23 @@
 
             <!-- servicio -->
             <td class="px-6 py-4">
-              <span class="text-gray-600 text-xs">
-                {{ cita.nombreServicio }}
-              </span>
-              <p class="text-gray-400 text-xs">{{ cita.duracionMin }} min</p>
+              <div class="flex items-center gap-2">
+                <div>
+                  <span class="text-gray-600 text-xs">
+                    {{ cita.nombreServicio }}
+                  </span>
+                  <p class="text-gray-400 text-xs">{{ cita.duracionMin }} min</p>
+                </div>
+                @if (cita.observaciones.trim()) {
+                  <div
+                    [title]="cita.observaciones"
+                    class="text-blue-400 hover:text-blue-600 cursos-help flex-shrink-0"
+                    title="{{ cita.observaciones }}"
+                  >
+                  <ng-icon name="heroClipboardDocument " size="14"></ng-icon>
+                </div>
+                }
+              </div>
             </td>
 
             <!-- fecha y hora | si es HOY se mostrara en naranja -->
@@ -386,7 +456,7 @@
                   [class]="
                     nuevaCita.fechaHora.includes(hora)
                       ? 'bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium'
-                      : 'borde border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs hover:border-blue-400 hover:text-blue-600 transition-colors'
+                      : 'border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs hover:border-blue-400 hover:text-blue-600 transition-colors'
                   "
                 >
                   {{ hora }}
@@ -460,7 +530,7 @@
             [(ngModel)]="obserCompletar"
             placeholder="Notas sobre la consulta..."
             rows="3"
-            class="w-full borde border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           ></textarea>
         </div>
       </div>
