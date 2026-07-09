@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIconsModule } from '@ng-icons/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { NotificacionService } from '../../core/services/notificacion.service';
@@ -8,6 +9,7 @@ import { PacienteService } from '../../core/services/paciente.service';
 import { CitaService } from '../../core/services/cita.service';
 import { PacienteResponse } from '../../shared/models/paciente.model';
 import { CitaResponse } from '../../shared/models/cita.model';
+import { tick } from '@angular/core/testing';
 
 interface HistorialResponse {
   idHistorial: number;
@@ -32,7 +34,7 @@ interface HistorialRequest {
 @Component({
   selector: 'app-historial',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIconsModule],
   templateUrl: './historial.html',
   styleUrl: './historial.css',
 })
@@ -50,8 +52,23 @@ export class Historial implements OnInit {
   // cita seleccionada para poder registrar al historial
   citaSeleccionada: CitaResponse | null = null;
 
+  //----------
+
+  mostrarModalEditar: boolean = false;
+  busquedaPaciente: string = '';
+  fechaDesde: string = '';
+  fechaHasta: string = '';
+
+  //----------
+
   nuevoHistorial: HistorialRequest = {
     idCita: 0,
+    diagnostico: '',
+    tratamiento: '',
+    notas: '',
+  };
+
+  editarHistorial = {
     diagnostico: '',
     tratamiento: '',
     notas: '',
@@ -171,13 +188,22 @@ export class Historial implements OnInit {
 
   formatearFecha(fecha: string): string {
     if (!fecha) return 'Sin fecha';
-
     const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
     const date = new Date(fechaLimpia);
-
     // verificar que la fecha es válida antes de formatear
     if (isNaN(date.getTime())) return 'Fecha inválida';
+    return date.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
 
+  formatearFechaHora(fecha: string): string {
+    if (!fecha) return 'Sin fecha';
+    const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
+    const date = new Date(fechaLimpia);
+    if (isNaN(date.getTime())) return 'Fecha inválida';
     return date.toLocaleDateString('es-PE', {
       weekday: 'long',
       day: '2-digit',
@@ -188,21 +214,93 @@ export class Historial implements OnInit {
     });
   }
 
-  formatearFechaHora(fecha: string): string {
-    if (!fecha) return 'Sin fecha';
-
-    const fechaLimpia = fecha.includes('T') ? fecha : fecha + 'T00:00:00';
-
-    const date = new Date(fechaLimpia);
-
-    if (isNaN(date.getTime())) return 'Fecha inválida';
-
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  // ------
+  // para buscar pacientes
+  get pacientesFiltrados(): PacienteResponse[] {
+    if (!this.busquedaPaciente.trim()) {
+      return this.pacientes;
+    }
+    const texto = this.busquedaPaciente.toLowerCase();
+    return this.pacientes.filter(
+      (p) =>
+        p.nombre.toLowerCase().includes(texto) ||
+        p.apellido.toLowerCase().includes(texto) ||
+        p.dni.includes(texto),
+    );
   }
+
+  // el filtro de historial
+  get historialesFiltrados(): HistorialResponse[] {
+    let resultado = this.historiales;
+    if (this.fechaDesde) {
+      resultado = resultado.filter((h) => {
+        const fecha = h.fechaCita.split('T')[0];
+        return fecha >= this.fechaDesde;
+      });
+    }
+    if (this.fechaHasta) {
+      resultado = resultado.filter((h) => {
+        const fecha = h.fechaCita.split('T')[0];
+        return fecha <= this.fechaHasta;
+      });
+    }
+
+    return resultado.sort(
+      (a, b) => new Date(a.fechaCita).getTime() - new Date(b.fechaCita).getTime(),
+    );
+  }
+
+  limpiarFiltrosFecha(): void {
+    this.fechaDesde = '';
+    this.fechaHasta = '';
+  }
+
+  // indicar primera consulta
+  esPrimeraConsulta(historial: HistorialResponse): boolean {
+    const ordenados = this.historialesFiltrados;
+    return ordenados.length > 0 && ordenados[0].idHistorial === historial.idHistorial;
+  }
+
+  // MODAL
+  abrirModalEditar(historial: HistorialResponse): void {
+    this.historialSeleccionado = historial;
+    this.editarHistorial = {
+      diagnostico: historial.diagnostico,
+      tratamiento: historial.tratamiento || '',
+      notas: historial.notas || '',
+    };
+    this.mostrarModalEditar = true;
+  }
+
+  cerrarModalEditar(): void {
+    this.mostrarModalEditar = false;
+    this.historialSeleccionado = null;
+  }
+
+  guardarEdicionHistorial(): void {
+    if (!this.historialSeleccionado) return;
+
+    if (!this.editarHistorial.diagnostico.trim()) {
+      this.notificacionService.error('El diagnostico el obligatorio');
+      return;
+    }
+
+    this.http
+      .patch<HistorialResponse>(
+        `${environment.apiUrl}/historial/${this.historialSeleccionado.idHistorial}/editar`,
+        this.editarHistorial,
+      )
+      .subscribe({
+        next: (data) => {
+          const index = this.historiales.findIndex((h) => h.idHistorial === data.idHistorial);
+          if (index !== -1) this.historiales[index] = data;
+          this.cerrarModalEditar();
+          this.notificacionService.exito('Historial actualizado');
+        },
+        error: (err) => {
+          this.notificacionService.error(err.error?.mensaje || 'Error al editar historial');
+        },
+      });
+  }
+  // ------
 }

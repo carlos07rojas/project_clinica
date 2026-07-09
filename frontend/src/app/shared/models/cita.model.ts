@@ -3,7 +3,7 @@ export interface CitaRequest {
   idMedico: number; // id del médico con el que se solicita la cita
   idServicio: number; // id del servicio para el que se solicita la cita
   fechaHora: string;
-  observaciones?: string;
+  observacion?: string;
 }
 
 export interface CitaResponse {
@@ -17,6 +17,6 @@ export interface CitaResponse {
   fechaHora: string;
   duracionMin: number;
   estado: string;
-  observaciones: string;
+  observacion: string;
   fechaCreacion: string;
 }

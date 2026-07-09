@@ -64,7 +64,7 @@ export class Citas implements OnInit {
     idMedico: 0,
     idServicio: 0,
     fechaHora: '',
-    observaciones: '',
+    observacion: '',
   };
 
   // se usara para saber cual cita se debe completar al confirmar
@@ -168,7 +168,7 @@ export class Citas implements OnInit {
       idMedico: 0,
       idServicio: 0,
       fechaHora: '',
-      observaciones: '',
+      observacion: '',
     };
     this.idEspecialidadSelecc = 0;
     this.medicos = [];
@@ -527,7 +527,7 @@ export class Citas implements OnInit {
   }
 
   getObservaciones(cita: CitaResponse): string {
-    return cita.observaciones?.trim() ? cita.observaciones : 'Sin observaciones';
+    return cita.observacion?.trim() ? cita.observacion : 'Sin observaciones';
   }
 
   get today(): string {
