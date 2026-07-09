@@ -42,7 +42,7 @@ public class Cita {
     @Column(name = "estado", nullable = false, length = 20) //por defecto PENDIENTE
     private String estado = "PENDIENTE";
 
-    @Column(name = "observaciones", nullable = false, length = 500)
+    @Column(name = "observaciones", length = 500)
     private String observaciones;
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

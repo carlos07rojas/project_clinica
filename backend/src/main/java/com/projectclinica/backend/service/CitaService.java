@@ -140,7 +140,7 @@ public class CitaService {
         cita.setDuracionMin(servicio.getDuracionMin());
         // usamos la duración del servicio directamente para que sea consistente con lo
         // que ofrece la clínica
-        cita.setObservaciones(dto.getObservaciones());
+        cita.setObservaciones(dto.getObservaciones() != null ? dto.getObservaciones() : "");
 
         Cita guardada = citaRepository.save(cita);
         return convertirAReponseDTO(guardada);
